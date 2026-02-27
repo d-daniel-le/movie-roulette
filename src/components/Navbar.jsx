@@ -1,20 +1,20 @@
+import { Link } from 'react-router-dom';
+
 export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        {/* Placeholder for the CineSpin icon */}
         <span className="logo-icon">CineSpin</span> 
       </div>
       
       <ul className="navbar-links">
-        <li><a href="/" className="nav-link active">Home</a></li>
-        <li><a href="/movies" className="nav-link">Movies</a></li>
-        <li><a href="/trending" className="nav-link">Trending</a></li>
-        <li><a href="/wheel" className="nav-link">Wheel</a></li>
+        <li><Link to="/" className="nav-link">Home</Link></li>
+        <li><Link to="/movies" className="nav-link">Movies</Link></li>
+        <li><Link to="/trending" className="nav-link">Trending</Link></li>
+        <li><Link to="/wheel" className="nav-link">Wheel</Link></li>
       </ul>
 
       <div className="navbar-actions">
-        {/* Placeholders for search and user profile icons */}
         <button className="icon-btn search-btn">Search</button>
         <button className="icon-btn user-btn">Profile</button>
       </div>
