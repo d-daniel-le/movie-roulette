@@ -1,6 +1,28 @@
 import { Link } from 'react-router-dom';
+import { FaSearch, FaUser } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
 
 export default function Navbar() {
+  const [user, setUser] = useState(null)
+  useEffect(() =>{
+    const stopListening = onAuthStateChanged(auth, (user) => {
+      setUser(user)
+    })
+
+    return () => stopListening();
+  }, [])
+
+  const navigate = useNavigate();
+
+  const loginOnClick = (event) =>{
+    event.preventDefault();
+
+    navigate("/login")
+  }
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -15,8 +37,12 @@ export default function Navbar() {
       </ul>
 
       <div className="navbar-actions">
-        <button className="icon-btn search-btn">Search</button>
-        <button className="icon-btn user-btn">Profile</button>
+        <button className="icon-btn search-btn"><FaSearch/></button>
+        {
+          user?
+          <button className="icon-btn profile-btn"><FaUser />{user.uid}</button>  : 
+          <button className="icon-btn user-btn" onClick={loginOnClick}><FaUser/></button>
+        }
       </div>
     </nav>
   );

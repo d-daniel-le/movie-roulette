@@ -1,0 +1,152 @@
+/* Register outline */
+.register-outer-container{
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-container{
+    width: 500px;
+    border: .5px solid #ffffff;
+    padding: 3%;
+    border-radius: 25px;
+}
+
+/* Register form */
+.register-form{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.register-container 
+.register-form 
+.register-email-container, 
+.register-password-container {
+    margin-top: 3%;
+}
+
+.register-email-container, 
+.register-password-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background-color: #2C2C2C;
+    padding: 2%;
+    border-radius: 10px;
+}
+.register-email-container:focus-within, 
+.register-password-container:focus-within{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    padding: 2%;
+
+}
+
+/* Register input */
+.register-email-container input{
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+    height: 50px;
+    color: #ffffff;
+}
+
+.register-password-container input{
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+    height: 50px;
+    color: #ffffff;
+}
+
+input:focus{
+    outline: none;
+}
+
+/* Register Button */
+
+.register-btn{
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2C2C2C;
+    color: #ffffff;
+    margin-bottom: 3%;
+}
+
+.register-btn:hover{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Register account button */
+
+.have-account-container{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.have-account-container #existing-login-btn{
+    text-decoration: underline;
+}
+
+.have-account-container #existing-login-btn:hover{
+    text-decoration: none;
+}
+
+/* Error Message */
+.error-message{
+    color: red;
+}
+
+/* First and Last name input */
+.user-first-last-outercontainer{
+    display: flex;
+    flex-direction: row;
+    gap: 90px;
+}
+
+.firstname-container, .lastname-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.firstname-container input{
+    background-color: #2C2C2C;
+    border: 0;
+    border-radius: 10px;
+    width: 100%;
+    height: 50px;
+    padding: 0 0 0 15px;
+    color: #ffffff;
+}
+
+.lastname-container input{
+    background-color: #2C2C2C;
+    border: 0;
+    border-radius: 10px;
+    width: 100%;
+    height: 50px;
+    padding: 0 0 0 15px;
+    color: #ffffff;
+}
+
+.firstname-container input:focus{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+}
+
+.lastname-container input:focus{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+}
