@@ -4,6 +4,9 @@ import Home from './pages/Home';
 import Movies from './pages/Movies';
 import Trending from './pages/Trending';
 import Wheel from './pages/Wheel';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 import './App.css'; 
 
 function App() {
@@ -16,6 +19,9 @@ function App() {
         <Route path="/movies" element={<Movies />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/wheel" element={<Wheel />} />
+        <Route path="/login" element={<Login />}/>
+        <Route path='/register' element={<Register />} />
+        <Route path='/profile' element={<Profile />}/>
       </Routes>
     </div>
   );

@@ -1,0 +1,109 @@
+/* Login outline */
+.login-outer-container{
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container{
+    width: 500px;
+    border: .5px solid #ffffff;
+    padding: 3%;
+    border-radius: 25px;
+}
+
+/* Login form */
+.login-form{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.login-container 
+.login-form 
+.login-email-container, 
+.login-password-container {
+    margin-top: 3%;
+}
+
+.login-email-container, 
+.login-password-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background-color: #2C2C2C;
+    padding: 2%;
+    border-radius: 10px;
+}
+.login-email-container:focus-within, 
+.login-password-container:focus-within{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    padding: 2%;
+
+}
+
+/* Login input */
+.login-email-container input{
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+    height: 50px;
+    color: #ffffff;
+}
+
+.login-password-container input{
+    background-color: transparent;
+    border: 0;
+    width: 100%;
+    height: 50px;
+    color: #ffffff;
+}
+
+input:focus{
+    outline: none;
+}
+
+/* Login Button */
+
+.login-btn{
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2C2C2C;
+    color: #ffffff;
+    margin-bottom: 3%;
+}
+
+.login-btn:hover{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Register account button */
+
+.create-account-container{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-account-container #create-account-btn{
+    text-decoration: underline;
+}
+
+.create-account-container #create-account-btn:hover{
+    text-decoration: none;
+}
+
+/* Error Message */
+.error-message{
+    color: red;
+}
