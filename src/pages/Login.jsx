@@ -2,14 +2,16 @@ import { FaEnvelope, FaLock } from "react-icons/fa"
 import { Link, useNavigate } from "react-router-dom"
 import './Login.css'
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 function Login(props){
     const [loginEmail, setLoginEmail] = useState("")
     const [loginPassword, setLoginPassword] = useState("")
     const [logErrorMessage, setLogErrorMessage] = useState("")
     const [hiddenLogErrorMessage, setHiddenLogErrorMessage] = useState(true)
+
     const navigate = useNavigate();
     const signInUser = async (event) =>{
         event.preventDefault()
@@ -17,6 +19,17 @@ function Login(props){
         try{
             const userCred = await signInWithEmailAndPassword(auth, loginEmail, loginPassword)
             const user = userCred.user;
+            
+            const userInfo = doc(db, "userinfo", user.uid)
+            const getUser = await getDoc(userInfo)
+
+            if(!getUser.exists()){
+                setDoc(doc(db, "userinfo", `${user.uid}`), {
+                    userID: user.uid,
+                    username: user.displayName,
+                    email: user.email    
+                })
+            }
             setLogErrorMessage("")
             setHiddenLogErrorMessage(true)
             navigate("/")

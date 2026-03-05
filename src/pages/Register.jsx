@@ -1,7 +1,7 @@
 import { FaEnvelope, FaLock } from "react-icons/fa"
 import { Link, useNavigate } from "react-router-dom"
 import "./Register.css"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { auth } from "../firebase"
 import { useState } from "react"
 import { db } from "../firebase"
@@ -23,14 +23,17 @@ function Register(props){
             // Register User
             const userCred = await createUserWithEmailAndPassword(auth, registerEmail, registerPassword)
             const user = userCred.user
+            await updateProfile(user, {
+                displayName: `${firstname} ${lastname}`
+            })
             console.log(user)
 
             // Save User Information to Database
              const userInfo = collection(db, "userinfo")
 
              await setDoc(doc(userInfo, `${user.uid}`), {
-                firstname: firstname,
-                lastname: lastname,
+                userID: user.uid,
+                username: user.displayName,
                 email: user.email,
              })
 
