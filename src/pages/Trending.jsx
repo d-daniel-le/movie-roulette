@@ -9,7 +9,7 @@ export default function Trending() {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwM2Y5NDE2MDBlMDQxNjFhZDBhNjZiYTgxOGEzYWE4OCIsIm5iZiI6MTc3MTg2NzkxNy4yNjQ5OTk5LCJzdWIiOiI2OTljOGYwZGU2OWQ5ZDkyMzMwZTVhNzUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.tmxCOWLup3rjzYVz8OQOjNlcWr60rihWHKLjL8BCtXg' 
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}` 
       }
     };
 
