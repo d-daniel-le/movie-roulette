@@ -1,6 +1,6 @@
 /* Register outline */
 .register-outer-container{
-    height: 80vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -112,7 +112,7 @@ input:focus{
 .user-first-last-outercontainer{
     display: flex;
     flex-direction: row;
-    gap: 90px;
+    gap: 115px;
 }
 
 .firstname-container, .lastname-container {
@@ -125,7 +125,7 @@ input:focus{
     background-color: #2C2C2C;
     border: 0;
     border-radius: 10px;
-    width: 100%;
+    width: 140%;
     height: 50px;
     padding: 0 0 0 15px;
     color: #ffffff;
@@ -135,7 +135,7 @@ input:focus{
     background-color: #2C2C2C;
     border: 0;
     border-radius: 10px;
-    width: 100%;
+    width: 140%;
     height: 50px;
     padding: 0 0 0 15px;
     color: #ffffff;
