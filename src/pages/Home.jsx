@@ -1,12 +1,45 @@
+import { useState, useEffect } from 'react';
+
 export default function Home() {
-  // Placeholder for api data of popular movies on homepage - we can change this later if we want more/less movies displayed
-  const mockPopularMovies = [
-    { id: 1, title: "Movie 1", posterPath: "placeholder1.jpg" },
-    { id: 2, title: "Movie 2", posterPath: "placeholder2.jpg" },
-    { id: 3, title: "Movie 3", posterPath: "placeholder3.jpg" },
-    { id: 4, title: "Movie 4", posterPath: "placeholder4.jpg" },
-    { id: 5, title: "Movie 5", posterPath: "placeholder5.jpg" },
-  ];
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [COSLoading, setCOSLoading] = useState(true);
+  const [COSmovies, setCOSMovies] = useState([]);
+
+  useEffect(() => {
+  const fetchMovies = async () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+      }
+    };
+
+    const today = new Date().toISOString().split('T')[0];
+    const [popularRes, upcomingRes] = await Promise.all([
+  fetch('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options),
+  fetch(`https://api.themoviedb.org/3/discover/movie?primary_release_date.gte=${today}&sort_by=popularity.desc&language=en-US&page=1`, options)
+]);
+
+    const popularData = await popularRes.json();
+    const upcomingData = await upcomingRes.json();
+
+    const popularMovies = popularData.results || [];
+    const popularIds = new Set(popularMovies.map((m) => m.id));
+
+    setMovies(popularMovies);
+    setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id)) || []);
+
+    setLoading(false);
+    setCOSLoading(false);
+  };
+
+  fetchMovies();
+}, []);
+
+
+
 
   // Just change the code in the css file for the className targets I added here to style this section
   return (
@@ -25,16 +58,62 @@ export default function Home() {
           <h2>Popular This Week</h2>
           <p>The most watched movies from the past 7 days</p>
         </div>
-        
         <div className="movie-grid">
-          {mockPopularMovies.map((movie) => (
-            <div key={movie.id} className="movie-card">
-              {/* Popular movies posters */}
-              <div className="poster-placeholder">
-                <span className="sr-only">{movie.title}</span>
+          <div className="movie-scroller" style={{ display: 'flex', overflowX: 'auto', gap: '15px', overflowY: 'hidden'}}>
+          {loading ? (
+            <p>Loading movies...</p>
+          ) : (
+            movies.map((movie) => (
+              <div key={movie.id} className="movie-card">
+                <img 
+                  src={movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                    : 'https://placehold.co/500x750?text=No+Poster'}
+                  onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                  alt={movie.title}
+                  className="movie-poster"
+                  style={{ width: '100%', borderRadius: '8px' }} 
+                />
+                <div className="movie-info">
+                   <h3>{movie.title}</h3>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
+        </div>
+      </div>
+
+      </section>
+
+      <section className="upcoming-section">
+        <div className="upcoming-content">
+          <h1>Coming Soon</h1>
+          <p>Highly anticipated releases</p>
+        </div>
+
+        <div className="movie-grid">
+          <div className="movie-scroller" style={{ display: 'flex', overflowX: 'auto', gap: '15px', overflowY: 'hidden'}}>
+          {COSLoading ? (
+            <p>Loading movies...</p>
+          ) : (
+            COSmovies.map((COSmovies) => (
+              <div key={COSmovies.id} className="movie-card">
+                <img 
+                  src={COSmovies.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${COSmovies.poster_path}`
+                    : 'https://placehold.co/500x750?text=No+Poster'} 
+                  onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                  alt={COSmovies.title}
+                  className="movie-poster"
+                  style={{ width: '100%', borderRadius: '8px' }} 
+                />
+                <div className="movie-info">
+                   <h3>{COSmovies.title}</h3>
+                </div>
+              </div>
+            ))
+          )}
+          </div>
         </div>
       </section>
     </main>
