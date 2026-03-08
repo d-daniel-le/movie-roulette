@@ -90,7 +90,7 @@
 .movie-grid {
   display: flex;
   gap: 1.5rem;
-  overflow-x: auto; /* Allows horizontal scrolling if there are many movies */
+  overflow-x: auto;
   padding-bottom: 1rem;
 }
 
@@ -125,20 +125,26 @@
 
 
 .movie-scroller::-webkit-scrollbar {
-  height: 1.3rem; /* Your custom height */
+  height: 1.3rem;
 }
 
 .movie-scroller::-webkit-scrollbar-thumb {
-  background-color: transparent; /* Invisible by default */
+  background-color: transparent;
   border-radius: 6px;
 }
 
 .movie-scroller:hover::-webkit-scrollbar-track {
-  background-color: rgba(134, 134, 134, 0.1); /* Your custom track color */
+  background-color: rgba(134, 134, 134, 0.1);
 }
 
 .movie-scroller:hover::-webkit-scrollbar-thumb {
-  background-color: hsla(0, 0%, 27%, 0.2); /* Your custom thumb color */
+  background-color: hsla(0, 0%, 27%, 0.2);
+}
+
+/* ================ UPCOMING SECTION ================ */
+.upcoming-section {
+    padding: 4rem;
+
 }
 
 /* ================ WHEEL PAGE LAYOUT ================ */
