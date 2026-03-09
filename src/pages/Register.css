@@ -150,3 +150,13 @@ input:focus{
     border: .5px solid #ffffff;
     border-radius: 10px;
 }
+
+/* Input Error */
+
+input.error-input{
+    border: .5px solid red;
+}
+
+input.error-input:focus{
+    border: .5px solid red;
+}
