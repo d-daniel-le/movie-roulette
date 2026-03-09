@@ -24,7 +24,7 @@ function Login(props){
             const getUser = await getDoc(userInfo)
 
             if(!getUser.exists()){
-                setDoc(doc(db, "userinfo", `${user.uid}`), {
+                await setDoc(doc(db, "userinfo", `${user.uid}`), {
                     userID: user.uid,
                     username: user.displayName,
                     email: user.email    
@@ -53,7 +53,7 @@ function Login(props){
                 <p className="error-message" hidden={hiddenLogErrorMessage}>{logErrorMessage}</p>
                 <form className="login-form" onSubmit={signInUser}>
                     <div className="login-email-outercontainer">
-                        <label htmlFor="email-input" id="login-username-label">Username/Email Address</label>
+                        <label htmlFor="email-input" id="login-username-label">Email Address</label>
                         <div className="login-email-container">
                             <FaEnvelope className="email-input-icon" />
                             <input id="email-input" type="email" placeholder="youremail@domain.com" value={loginEmail} onChange={(event) => {setLoginEmail(event.target.value)}}/> 
