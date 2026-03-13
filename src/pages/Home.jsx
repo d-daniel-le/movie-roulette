@@ -59,7 +59,7 @@ export default function Home() {
           <p>The most watched movies from the past 7 days</p>
         </div>
         <div className="movie-grid">
-          <div className="movie-scroller" style={{ display: 'flex', overflowX: 'auto', gap: '15px', overflowY: 'hidden'}}>
+          <div className="movie-scroller">
           {loading ? (
             <p>Loading movies...</p>
           ) : (
@@ -72,7 +72,6 @@ export default function Home() {
                   onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
                   alt={movie.title}
                   className="movie-poster"
-                  style={{ width: '100%', borderRadius: '8px' }} 
                 />
                 <div className="movie-info">
                    <h3>{movie.title}</h3>
@@ -92,7 +91,7 @@ export default function Home() {
         </div>
 
         <div className="movie-grid">
-          <div className="movie-scroller" style={{ display: 'flex', overflowX: 'auto', gap: '15px', overflowY: 'hidden'}}>
+          <div className="movie-scroller">
           {COSLoading ? (
             <p>Loading movies...</p>
           ) : (
@@ -105,7 +104,6 @@ export default function Home() {
                   onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
                   alt={COSmovies.title}
                   className="movie-poster"
-                  style={{ width: '100%', borderRadius: '8px' }} 
                 />
                 <div className="movie-info">
                    <h3>{COSmovies.title}</h3>

@@ -1,0 +1,35 @@
+/* ================ Trending SECTION ================ */
+.poster-placeholder-trending {
+  margin-top: 1rem;
+  transition: transform 0.2s;
+  width: 250px;
+}
+
+.poster-placeholder-trending:hover {
+  transform: scale(1.05);
+}
+
+.featured-movie {
+  background-size: cover;
+  background-position: center top;
+  position: relative;
+  height: 60vh;
+  display: 'flex';
+  align-items: flex;
+}
+
+.h1-trending {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.movie-scroller {
+  display: flex; 
+  overflow-x: auto; 
+  gap: 15px; 
+  overflow-y: hidden;
+}
+
+.cardimg {
+    border-radius: 8px;
+}
