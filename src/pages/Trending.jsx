@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import './Trending.css';
 
 export default function Trending() {
   const [movies, setMovies] = useState([]);
+  const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,47 +15,60 @@ export default function Trending() {
       }
     };
 
-    fetch('https://api.themoviedb.org/3/trending/movie/day?language=en-US', options)
-      .then(response => response.json())
-      .then(data => {
-        setMovies(data.results);
+    const fetchMovies = fetch('https://api.themoviedb.org/3/trending/movie/day?language=en-US', options)
+      .then(response => response.json());
+
+    const fetchPeople = fetch('https://api.themoviedb.org/3/trending/person/day?language=en-US', options)
+      .then(response => response.json());
+
+    Promise.all([fetchMovies, fetchPeople])
+      .then(([movieData, peopleData]) => {
+        setMovies(movieData.results);
+        setPeople(peopleData.results);
         setLoading(false);
       })
       .catch(err => console.error(err));
   }, []);
 
-  if (loading) return <p>Loading trending movies...</p>;
+  if (loading) return <p>Loading trending content...</p>;
 
   const featuredMovie = movies[0];
 
   return (
-   <div style={{ padding: '4rem', textAlign: 'center' }}>
+   <div style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '2rem', textAlign: 'center' }}>
 
     {featuredMovie && (
-        <div style={{
-          position: 'relative',
-          height: '60vh',
+        <div className="featured-movie" style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 60%, #111 100%), url(https://image.tmdb.org/t/p/original${featuredMovie.backdrop_path})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          display: 'flex',
-          alignItems: 'flex-end',
-          padding: '0 4rem'
         }}>
-          <h1 style={{ fontSize: '3rem', marginBottom: '2rem' }}>{featuredMovie.title}</h1>
+          <h1 className="h1-trending">{featuredMovie.title}</h1>
         </div>
       )}
       
-      <h2>Trending Today</h2>
-      <div className="movie-scroller" style={{ display: 'flex', overflowX: 'auto', gap: '15px', overflowY: 'hidden'}}>
+      <h2>Trending Movies</h2>
+      <div className="movie-scroller">
         {movies.map((movie) => (
-          <div className="poster-placeholder-trending" key={movie.id} style={{ width: '250px' }}>
+          <div className="poster-placeholder-trending" key={movie.id}>
             <img 
+              className='cardimg'
               src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
               alt={movie.title} 
-              style={{ borderRadius: '8px' }}
             />
             <p><strong>{movie.title}</strong></p>
+          </div>
+        ))}
+      </div>
+
+      <h2>Trending People</h2>
+      <div className="movie-scroller">
+        {people.map((person) => (
+          <div className="poster-placeholder-trending" key={person.id}>
+            <img 
+              className='cardimg'
+              src={person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'https://placehold.co/200x300?text=No+Image'}
+              alt={person.name} 
+            />
+            <p><strong>{person.name}</strong></p>
           </div>
         ))}
       </div>
