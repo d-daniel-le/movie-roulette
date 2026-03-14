@@ -1,0 +1,171 @@
+.profile-nav {
+    display: grid;
+    grid-template-columns: 175px 1fr;
+    gap: 50px;
+    padding: 0 150px;
+    margin-top: 0;
+    justify-content: center;
+}
+
+/* profile side navigation */
+
+.profile-sidenav{
+    background-color: #1E1C1C;
+    height: 100vh;
+    border-radius: 25px;
+    padding: 25px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* side navigation button */
+
+.profile-sidenav-btn{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 100%;
+}
+
+.profile-sidenav-btn .profile-logout-btn{
+    margin-top: 0;
+}
+
+.profile-sidenav-btn button{
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2C2C2C;
+    color: #ffffff;
+    margin-bottom: 3%;
+
+}
+
+.profile-sidenav-btn button:hover{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.profile-sidenav-btn button:focus-visible{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+hr{
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Profile content */
+.profile-content {
+    padding: 25px;
+    border-radius: 25px;
+    background-color: #1E1C1C;
+}
+
+/* Profile Name */
+.profile-sidenav .profile-name{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-name h2{
+    margin-top: 0;
+}
+
+/* Account information */
+
+.profile-my-info .profile-my-info-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-my-info hr{
+    width: 50%;
+}
+
+.profile-my-info .user-account-information{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+}
+
+.profile-my-info .user-account-information dl {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Edit Information Btn */
+.user-account-information button {
+    width: 50%;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2C2C2C;
+    color: #ffffff;
+    margin-bottom: 3%;
+}
+
+.user-account-information button:hover{
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Account Name */
+
+dl .user-account-name dt{
+    font-weight: bolder;
+}
+
+.user-account-name{
+    display: flex;
+    flex-direction: row;
+}
+
+/* Account Email */
+dl .user-account-email dt{
+    font-weight: bolder;
+}
+
+.user-account-email{
+    display: flex;
+    flex-direction: row;
+}
+
+/* Account Date Created */
+dl .user-account-date-created dt{
+    font-weight: bolder;
+}
+
+.user-account-date-created{
+    display: flex;
+    flex-direction: row;
+}
+
+dt{
+    width: 200px;
+}
+
+dd{
+    margin: 0;
+}
+
+.save-cancel-edit{
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    width: 50%;
+}

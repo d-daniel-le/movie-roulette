@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaUser } from 'react-icons/fa';
 import { useContext } from 'react';
 import { AuthContext } from './AuthProvider';
+import "./NavBar.css"
 
 export default function Navbar() {
 
