@@ -1,7 +1,8 @@
 import { AuthContext } from "../components/AuthProvider";
 import { useContext, useEffect, useState } from "react";
 import "./Profile.css"
-import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile, getAuth, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function Profile(){
     const [hiddenMyInfo, setHiddenMyInfo] = useState(false);
@@ -16,6 +17,10 @@ function Profile(){
     const [reauthPassword, setReauthPassword] = useState("")
     const [reauthPasswordMessage, setReauthPasswordMessage] = useState("")
     const [hiddenReauthPasswordMessage, setHiddenReauthPasswordMessage] = useState(true)
+
+    // NEW: Initialize navigation and auth for the logout function
+    const navigate = useNavigate();
+    const auth = getAuth();
 
     // My Information button - click function
     const setMyInfoHidden = () =>{
@@ -38,6 +43,16 @@ function Profile(){
     const setCancelEdit = () =>{
         setCurrentlyEdit(false)
     }
+
+    // NEW: Logout button - click function
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/register'); 
+        } catch (error) {
+            console.error("Failed to log out:", error);
+        }
+    };
 
     // Reauthenticate Account when firebase throw an error to reauthenticate
     const reauthenticateAccount = async (event) =>{
@@ -70,7 +85,6 @@ function Profile(){
     
             }
 
-
             if(currentEmailValue.trim() !== user.email.trim()){
                 await updateEmail(user, currentEmailValue.trim())
                 setEmailErrorMessage("")
@@ -80,7 +94,6 @@ function Profile(){
                 setEmailErrorMessage("New email can't be the same as the current one")
                 setHiddenEmailErrorMessage(false)
             }
-
 
             setCurrentlyEdit(false)
             setReauthAccount(false)
@@ -122,7 +135,8 @@ function Profile(){
                     <button className="watched-history" onClick={setWatchedContentHidden}>Watched History</button>
 
                     <hr />
-                    <button className="profile-logout-btn">Logout</button>
+                    {/* UPDATED: Added onClick to trigger handleLogout */}
+                    <button className="profile-logout-btn" onClick={handleLogout}>Logout</button>
                     
                 </div>
             </div>
@@ -143,7 +157,7 @@ function Profile(){
                         <dl>
                             <div className="user-account-name">
                                 <dt>Name:</dt>
-                                {currentlyEdit? <input type="text" value={currentDisplayNameValue} onChange={(event)=>{setCurrentDisplayNameValue(event.target.value)}}/> : <dd>{user.displayName}</dd>}                                
+                                {currentlyEdit? <input type="text" value={currentDisplayNameValue} onChange={(event)=>{setCurrentDisplayNameValue(event.target.value)}}/> : <dd>{user.displayName}</dd>}                               
 
                             </div>
 
