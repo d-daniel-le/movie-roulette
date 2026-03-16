@@ -22,8 +22,10 @@ export default function Wheel() {
   const [rotation, setRotation] = useState(0); 
   const [winner, setWinner] = useState(null);
 
-  // 2. REFS FOR SCROLLING
+  // 2. REFS FOR SCROLLING, WHEEL MEASUREMENT, AND AUDIO
   const resultSectionRef = useRef(null);
+  const wheelRef = useRef(null);
+  const clickAudio = useRef(typeof Audio !== "undefined" ? new Audio('/tick.mp3') : null);
 
   // Helper to toggle checkbox selections in our arrays
   const toggleSelection = (setter, stateArray, value) => {
@@ -154,6 +156,49 @@ export default function Wheel() {
     }
   }, [winner]);
 
+  // 4.5 AUDIO TICK EFFECT
+  useEffect(() => {
+    let animationFrameId;
+    let lastWedge = -1;
+
+    const watchWheelRotation = () => {
+      if (!wheelRef.current) return;
+
+      const style = window.getComputedStyle(wheelRef.current);
+      const matrix = style.getPropertyValue('transform');
+
+      if (matrix !== 'none') {
+        const values = matrix.split('(')[1].split(')')[0].split(',');
+        const a = values[0];
+        const b = values[1];
+        let angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+        if (angle < 0) angle += 360; 
+
+        // 10 wedges = 36 degrees per wedge
+        const currentWedge = Math.floor(angle / 36);
+
+        if (currentWedge !== lastWedge) {
+          if (clickAudio.current) {
+            clickAudio.current.currentTime = 0; 
+            clickAudio.current.play().catch(e => console.log("Audio blocked:", e));
+          }
+          lastWedge = currentWedge;
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(watchWheelRotation);
+    };
+
+    if (spinPhase === 'spinning') {
+      if (clickAudio.current) clickAudio.current.volume = 0.4;
+      animationFrameId = requestAnimationFrame(watchWheelRotation);
+    }
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [spinPhase]);
+
   // UI DATA ARRAYS
   const decadesList = ['1970', '1980', '1990', '2000', '2010', '2020'];
   const genresList = [
@@ -249,7 +294,11 @@ export default function Wheel() {
         <section className="wheel-display-area">
           <div className="wheel-pointer"></div>
           
-          <div className="physical-wheel" style={{ transform: `rotate(${rotation}deg)` }}>
+          <div 
+            className="physical-wheel" 
+            ref={wheelRef}
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
             {wheelSpots.map((spot, index) => (
               <div key={index} className="wheel-slice">
                 <div className="slice-content">

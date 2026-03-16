@@ -313,9 +313,11 @@
   position: absolute;
   top: 0;
   left: 50%;
-  width: 220px; 
+  /* The correct tangent math for a 36-degree angle at 350px height is ~227.5px */
+  width: 228px; 
   height: 50%;
-  margin-left: -110px; 
+  /* Must be exactly half of the new width */
+  margin-left: -114px; 
   transform-origin: bottom center;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   display: flex;
@@ -349,7 +351,7 @@
   height: 100%;
   object-fit: cover;
   transform: rotate(180deg);
-  opacity: 0.85; 
+  opacity: 1; 
 }
 
 .question-mark {
