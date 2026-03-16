@@ -25,6 +25,7 @@ export default function Wheel() {
   // 2. REFS FOR SCROLLING
   const resultSectionRef = useRef(null);
 
+  // Helper to toggle checkbox selections in our arrays
   const toggleSelection = (setter, stateArray, value) => {
     if (stateArray.includes(value)) {
       setter(stateArray.filter(item => item !== value));
@@ -33,6 +34,7 @@ export default function Wheel() {
     }
   };
 
+  // Helper to toggle accordion sections open and closed
   const toggleAccordion = (section) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };
@@ -45,19 +47,19 @@ export default function Wheel() {
     setSpinPhase('fetching');
 
     const token = import.meta.env.VITE_TMDB_API_TOKEN_AUTH; 
-    let url = `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc&page=1`;
+    let baseUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc`;
 
-    if (selectedGenres.length > 0) url += `&with_genres=${selectedGenres.join('|')}`;
-    if (selectedCerts.length > 0) url += `&certification_country=US&certification=${selectedCerts.join('|')}`;
+    if (selectedGenres.length > 0) baseUrl += `&with_genres=${selectedGenres.join('|')}`;
+    if (selectedCerts.length > 0) baseUrl += `&certification_country=US&certification=${selectedCerts.join('|')}`;
     if (selectedRatings.length > 0) {
       const minRating = Math.min(...selectedRatings.map(r => parseInt(r)));
-      url += `&vote_average.gte=${minRating}`;
+      baseUrl += `&vote_average.gte=${minRating}`;
     }
     if (selectedDecades.length > 0) {
       const years = selectedDecades.map(d => parseInt(d));
       const minYear = Math.min(...years);
       const maxYear = Math.max(...years) + 9;
-      url += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
+      baseUrl += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
     }
 
     const fetchOptions = {
@@ -69,11 +71,33 @@ export default function Wheel() {
     };
 
     try {
-      const response = await fetch(url, fetchOptions);
-      const data = await response.json();
+      // Step 1: Fetch page 1 to see how many total pages of movies match these filters
+      const initialResponse = await fetch(`${baseUrl}&page=1`, fetchOptions);
+      const initialData = await initialResponse.json();
       
-      if (data.results && data.results.length >= 10) {
-        const top10 = data.results.slice(0, 10);
+      if (initialData.results && initialData.total_results >= 10) {
+        
+        // Step 2: Pick a random page from the results (capped at top 20 pages)
+        const maxPage = Math.min(initialData.total_pages, 20);
+        const randomPage = Math.floor(Math.random() * maxPage) + 1;
+
+        let finalData = initialData;
+        
+        // Step 3: Fetch that specific random page if it isn't page 1
+        if (randomPage !== 1) {
+            const pageResponse = await fetch(`${baseUrl}&page=${randomPage}`, fetchOptions);
+            finalData = await pageResponse.json();
+        }
+
+        // Step 4: Robust shuffle of the 20 results
+        const shuffledResults = [...finalData.results];
+        for (let i = shuffledResults.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledResults[i], shuffledResults[j]] = [shuffledResults[j], shuffledResults[i]];
+        }
+        
+        // Take the top 10 from the freshly randomized deck
+        const top10 = shuffledResults.slice(0, 10);
         
         const formattedSpots = top10.map(movie => ({
           title: movie.title,
@@ -89,13 +113,14 @@ export default function Wheel() {
         const rotationsToZero = 360 - (rotation % 360);
         const baseSpins = 360 * 8; 
         
+        // Add 180 degrees to stop exactly at the bottom arrow
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
         const newRotation = rotation + targetDegree;
         
         setRotation(newRotation);
         setSpinPhase('spinning');
 
-        // Wait for CSS transition to finish before showing the winner
+        // Wait for the 8-second CSS transition to finish before showing the winner
         setTimeout(() => {
           setSpinPhase('finished');
           const winningMovie = top10[winningIndex];
@@ -147,6 +172,7 @@ export default function Wheel() {
     <div className="wheel-page-container">
       <div className="wheel-layout-grid">
         
+        {/* Left Column: Filters */}
         <aside className="filters-sidebar">
           <h3 style={{ marginBottom: '1.5rem' }}>Set Your Criteria</h3>
           
@@ -219,6 +245,7 @@ export default function Wheel() {
           </button>
         </aside>
 
+        {/* Right Column: The Wheel UI */}
         <section className="wheel-display-area">
           <div className="wheel-pointer"></div>
           
@@ -239,6 +266,7 @@ export default function Wheel() {
 
       </div>
 
+      {/* BOTTOM SECTION: The Celebration Result */}
       {winner && (
         <div className="winner-celebration-section" ref={resultSectionRef}>
           <h2>We Have a Winner!</h2>
