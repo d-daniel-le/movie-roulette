@@ -113,7 +113,8 @@ export default function Wheel() {
         const winningIndex = Math.floor(Math.random() * 10);
         
         const rotationsToZero = 360 - (rotation % 360);
-        const baseSpins = 360 * 8; 
+        
+        const baseSpins = 360 * 6;
         
         // Add 180 degrees to stop exactly at the bottom arrow
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
