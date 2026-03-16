@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 
 export default function Wheel() {
   // 1. STATE MANAGEMENT
@@ -22,6 +24,11 @@ export default function Wheel() {
   const [rotation, setRotation] = useState(0); 
   const [winner, setWinner] = useState(null);
 
+  // 1.5 NAVIGATION & AUTH
+  const navigate = useNavigate();
+  // Ensure Firebase is initialized elsewhere in your project for this to work!
+  const auth = getAuth();
+
   // 2. REFS FOR SCROLLING, WHEEL MEASUREMENT, AND AUDIO
   const resultSectionRef = useRef(null);
   const wheelRef = useRef(null);
@@ -43,6 +50,14 @@ export default function Wheel() {
 
   // 3. THE SPIN SEQUENCE LOGIC
   const handleSpinClick = async () => {
+    
+    // --- AUTHENTICATION GUARD ---
+    if (!auth.currentUser) {
+      alert("You need to log in or register to spin the Roulette Wheel!");
+      navigate('/register'); 
+      return; 
+    }
+
     if (spinPhase === 'fetching' || spinPhase === 'spinning') return;
 
     setWinner(null);
@@ -114,7 +129,8 @@ export default function Wheel() {
         
         const rotationsToZero = 360 - (rotation % 360);
         
-        const baseSpins = 360 * 6;
+        // Adjusted to 6 for the perfect max speed balance
+        const baseSpins = 360 * 6; 
         
         // Add 180 degrees to stop exactly at the bottom arrow
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
