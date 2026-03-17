@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
@@ -6,42 +6,65 @@ export default function Home() {
   const [COSLoading, setCOSLoading] = useState(true);
   const [COSmovies, setCOSMovies] = useState([]);
 
+  // 1. Create Refs for the scrollable containers
+  const popularScrollRef = useRef(null);
+  const upcomingScrollRef = useRef(null);
+
   useEffect(() => {
-  const fetchMovies = async () => {
-    const options = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+    const fetchMovies = async () => {
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+        }
+      };
+
+      const today = new Date().toISOString().split('T')[0];
+      const [popularRes, upcomingRes] = await Promise.all([
+        fetch('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options),
+        fetch(`https://api.themoviedb.org/3/discover/movie?primary_release_date.gte=${today}&sort_by=popularity.desc&language=en-US&page=1`, options)
+      ]);
+
+      const popularData = await popularRes.json();
+      const upcomingData = await upcomingRes.json();
+
+      const popularMovies = popularData.results || [];
+      const popularIds = new Set(popularMovies.map((m) => m.id));
+
+      setMovies(popularMovies);
+      setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id)) || []);
+
+      setLoading(false);
+      setCOSLoading(false);
+    };
+
+    fetchMovies();
+  }, []);
+
+  // 2. Add the Mouse Wheel Scroll Effect
+  useEffect(() => {
+    const handleWheelScroll = (e) => {
+      // If moving the scroll wheel vertically...
+      if (e.deltaY !== 0) {
+        e.preventDefault(); // Stop the whole page from scrolling down
+        e.currentTarget.scrollLeft += e.deltaY; // Move the carousel sideways instead
       }
     };
 
-    const today = new Date().toISOString().split('T')[0];
-    const [popularRes, upcomingRes] = await Promise.all([
-  fetch('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options),
-  fetch(`https://api.themoviedb.org/3/discover/movie?primary_release_date.gte=${today}&sort_by=popularity.desc&language=en-US&page=1`, options)
-]);
+    const popRef = popularScrollRef.current;
+    const upRef = upcomingScrollRef.current;
 
-    const popularData = await popularRes.json();
-    const upcomingData = await upcomingRes.json();
+    // We use { passive: false } so preventDefault() is allowed to block the page scroll
+    if (popRef) popRef.addEventListener('wheel', handleWheelScroll, { passive: false });
+    if (upRef) upRef.addEventListener('wheel', handleWheelScroll, { passive: false });
 
-    const popularMovies = popularData.results || [];
-    const popularIds = new Set(popularMovies.map((m) => m.id));
+    return () => {
+      if (popRef) popRef.removeEventListener('wheel', handleWheelScroll);
+      if (upRef) upRef.removeEventListener('wheel', handleWheelScroll);
+    };
+  }, [loading, COSLoading]); // Re-attach if loading state changes the DOM
 
-    setMovies(popularMovies);
-    setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id)) || []);
-
-    setLoading(false);
-    setCOSLoading(false);
-  };
-
-  fetchMovies();
-}, []);
-
-
-
-
-  // Just change the code in the css file for the className targets I added here to style this section
   return (
     <main className="home-page">
       {/* Hero Section */}
@@ -59,7 +82,8 @@ export default function Home() {
           <p>The most watched movies from the past 7 days</p>
         </div>
         <div className="movie-grid">
-          <div className="movie-scroller">
+          {/* Attached the Ref here */}
+          <div className="movie-scroller" ref={popularScrollRef}>
           {loading ? (
             <p>Loading movies...</p>
           ) : (
@@ -81,7 +105,6 @@ export default function Home() {
           )}
         </div>
       </div>
-
       </section>
 
       <section className="upcoming-section">
@@ -91,22 +114,23 @@ export default function Home() {
         </div>
 
         <div className="movie-grid">
-          <div className="movie-scroller">
+          {/* Attached the Ref here */}
+          <div className="movie-scroller" ref={upcomingScrollRef}>
           {COSLoading ? (
             <p>Loading movies...</p>
           ) : (
-            COSmovies.map((COSmovies) => (
-              <div key={COSmovies.id} className="movie-card">
+            COSmovies.map((upcomingMovie) => (
+              <div key={upcomingMovie.id} className="movie-card">
                 <img 
-                  src={COSmovies.poster_path
-                    ? `https://image.tmdb.org/t/p/w500${COSmovies.poster_path}`
+                  src={upcomingMovie.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${upcomingMovie.poster_path}`
                     : 'https://placehold.co/500x750?text=No+Poster'} 
                   onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                  alt={COSmovies.title}
+                  alt={upcomingMovie.title}
                   className="movie-poster"
                 />
                 <div className="movie-info">
-                   <h3>{COSmovies.title}</h3>
+                   <h3>{upcomingMovie.title}</h3>
                 </div>
               </div>
             ))
