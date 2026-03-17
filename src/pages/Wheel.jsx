@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 
 export default function Wheel() {
   // 1. STATE MANAGEMENT
@@ -22,9 +24,17 @@ export default function Wheel() {
   const [rotation, setRotation] = useState(0); 
   const [winner, setWinner] = useState(null);
 
-  // 2. REFS FOR SCROLLING
-  const resultSectionRef = useRef(null);
+  // 1.5 NAVIGATION & AUTH
+  const navigate = useNavigate();
+  // Ensure Firebase is initialized elsewhere in your project for this to work!
+  const auth = getAuth();
 
+  // 2. REFS FOR SCROLLING, WHEEL MEASUREMENT, AND AUDIO
+  const resultSectionRef = useRef(null);
+  const wheelRef = useRef(null);
+  const clickAudio = useRef(typeof Audio !== "undefined" ? new Audio('/tick.mp3') : null);
+
+  // Helper to toggle checkbox selections in our arrays
   const toggleSelection = (setter, stateArray, value) => {
     if (stateArray.includes(value)) {
       setter(stateArray.filter(item => item !== value));
@@ -33,31 +43,40 @@ export default function Wheel() {
     }
   };
 
+  // Helper to toggle accordion sections open and closed
   const toggleAccordion = (section) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   // 3. THE SPIN SEQUENCE LOGIC
   const handleSpinClick = async () => {
+    
+    // --- AUTHENTICATION GUARD ---
+    if (!auth.currentUser) {
+      alert("You need to log in or register to spin the Roulette Wheel!");
+      navigate('/register'); 
+      return; 
+    }
+
     if (spinPhase === 'fetching' || spinPhase === 'spinning') return;
 
     setWinner(null);
     setSpinPhase('fetching');
 
     const token = import.meta.env.VITE_TMDB_API_TOKEN_AUTH; 
-    let url = `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc&page=1`;
+    let baseUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc`;
 
-    if (selectedGenres.length > 0) url += `&with_genres=${selectedGenres.join('|')}`;
-    if (selectedCerts.length > 0) url += `&certification_country=US&certification=${selectedCerts.join('|')}`;
+    if (selectedGenres.length > 0) baseUrl += `&with_genres=${selectedGenres.join('|')}`;
+    if (selectedCerts.length > 0) baseUrl += `&certification_country=US&certification=${selectedCerts.join('|')}`;
     if (selectedRatings.length > 0) {
       const minRating = Math.min(...selectedRatings.map(r => parseInt(r)));
-      url += `&vote_average.gte=${minRating}`;
+      baseUrl += `&vote_average.gte=${minRating}`;
     }
     if (selectedDecades.length > 0) {
       const years = selectedDecades.map(d => parseInt(d));
       const minYear = Math.min(...years);
       const maxYear = Math.max(...years) + 9;
-      url += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
+      baseUrl += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
     }
 
     const fetchOptions = {
@@ -69,11 +88,33 @@ export default function Wheel() {
     };
 
     try {
-      const response = await fetch(url, fetchOptions);
-      const data = await response.json();
+      // Step 1: Fetch page 1 to see how many total pages of movies match these filters
+      const initialResponse = await fetch(`${baseUrl}&page=1`, fetchOptions);
+      const initialData = await initialResponse.json();
       
-      if (data.results && data.results.length >= 10) {
-        const top10 = data.results.slice(0, 10);
+      if (initialData.results && initialData.total_results >= 10) {
+        
+        // Step 2: Pick a random page from the results (capped at top 20 pages)
+        const maxPage = Math.min(initialData.total_pages, 20);
+        const randomPage = Math.floor(Math.random() * maxPage) + 1;
+
+        let finalData = initialData;
+        
+        // Step 3: Fetch that specific random page if it isn't page 1
+        if (randomPage !== 1) {
+            const pageResponse = await fetch(`${baseUrl}&page=${randomPage}`, fetchOptions);
+            finalData = await pageResponse.json();
+        }
+
+        // Step 4: Robust shuffle of the 20 results
+        const shuffledResults = [...finalData.results];
+        for (let i = shuffledResults.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledResults[i], shuffledResults[j]] = [shuffledResults[j], shuffledResults[i]];
+        }
+        
+        // Take the top 10 from the freshly randomized deck
+        const top10 = shuffledResults.slice(0, 10);
         
         const formattedSpots = top10.map(movie => ({
           title: movie.title,
@@ -87,15 +128,18 @@ export default function Wheel() {
         const winningIndex = Math.floor(Math.random() * 10);
         
         const rotationsToZero = 360 - (rotation % 360);
-        const baseSpins = 360 * 8; 
         
+        // Adjusted to 6 for the perfect max speed balance
+        const baseSpins = 360 * 6; 
+        
+        // Add 180 degrees to stop exactly at the bottom arrow
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
         const newRotation = rotation + targetDegree;
         
         setRotation(newRotation);
         setSpinPhase('spinning');
 
-        // Wait for CSS transition to finish before showing the winner
+        // Wait for the 8-second CSS transition to finish before showing the winner
         setTimeout(() => {
           setSpinPhase('finished');
           const winningMovie = top10[winningIndex];
@@ -129,6 +173,49 @@ export default function Wheel() {
     }
   }, [winner]);
 
+  // 4.5 AUDIO TICK EFFECT
+  useEffect(() => {
+    let animationFrameId;
+    let lastWedge = -1;
+
+    const watchWheelRotation = () => {
+      if (!wheelRef.current) return;
+
+      const style = window.getComputedStyle(wheelRef.current);
+      const matrix = style.getPropertyValue('transform');
+
+      if (matrix !== 'none') {
+        const values = matrix.split('(')[1].split(')')[0].split(',');
+        const a = values[0];
+        const b = values[1];
+        let angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+        if (angle < 0) angle += 360; 
+
+        // 10 wedges = 36 degrees per wedge
+        const currentWedge = Math.floor(angle / 36);
+
+        if (currentWedge !== lastWedge) {
+          if (clickAudio.current) {
+            clickAudio.current.currentTime = 0; 
+            clickAudio.current.play().catch(e => console.log("Audio blocked:", e));
+          }
+          lastWedge = currentWedge;
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(watchWheelRotation);
+    };
+
+    if (spinPhase === 'spinning') {
+      if (clickAudio.current) clickAudio.current.volume = 0.4;
+      animationFrameId = requestAnimationFrame(watchWheelRotation);
+    }
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [spinPhase]);
+
   // UI DATA ARRAYS
   const decadesList = ['1970', '1980', '1990', '2000', '2010', '2020'];
   const genresList = [
@@ -147,6 +234,7 @@ export default function Wheel() {
     <div className="wheel-page-container">
       <div className="wheel-layout-grid">
         
+        {/* Left Column: Filters */}
         <aside className="filters-sidebar">
           <h3 style={{ marginBottom: '1.5rem' }}>Set Your Criteria</h3>
           
@@ -219,10 +307,15 @@ export default function Wheel() {
           </button>
         </aside>
 
+        {/* Right Column: The Wheel UI */}
         <section className="wheel-display-area">
           <div className="wheel-pointer"></div>
           
-          <div className="physical-wheel" style={{ transform: `rotate(${rotation}deg)` }}>
+          <div 
+            className="physical-wheel" 
+            ref={wheelRef}
+            style={{ transform: `rotate(${rotation}deg)` }}
+          >
             {wheelSpots.map((spot, index) => (
               <div key={index} className="wheel-slice">
                 <div className="slice-content">
@@ -239,6 +332,7 @@ export default function Wheel() {
 
       </div>
 
+      {/* BOTTOM SECTION: The Celebration Result */}
       {winner && (
         <div className="winner-celebration-section" ref={resultSectionRef}>
           <h2>We Have a Winner!</h2>

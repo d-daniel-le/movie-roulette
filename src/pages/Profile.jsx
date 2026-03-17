@@ -24,6 +24,10 @@ function Profile(){
 
     const navigate = useNavigate()
 
+    // NEW: Initialize navigation and auth for the logout function
+    const navigate = useNavigate();
+    const auth = getAuth();
+
     // My Information button - click function
     const setMyInfoHidden = () =>{
         setHiddenMyInfo(false)
@@ -61,6 +65,16 @@ function Profile(){
         setCurrentDisplayNameValue(user.displayName)
         setCurrentEmailValue(user.email)
 }
+
+    // NEW: Logout button - click function
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/register'); 
+        } catch (error) {
+            console.error("Failed to log out:", error);
+        }
+    };
 
     // Reauthenticate Account when firebase throw an error to reauthenticate
     const reauthenticateAccount = async (event) =>{
@@ -113,7 +127,6 @@ function Profile(){
                 username: currentDisplayNameValue,
                 email: currentEmailValue
             })
-
 
             setCurrentlyEdit(false)
             setReauthAccount(false)
