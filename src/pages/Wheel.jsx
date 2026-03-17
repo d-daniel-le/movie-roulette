@@ -196,8 +196,10 @@ export default function Wheel() {
 
         if (currentWedge !== lastWedge) {
           if (clickAudio.current) {
-            clickAudio.current.currentTime = 0; 
-            clickAudio.current.play().catch(e => console.log("Audio blocked:", e));
+            // Clone the audio node so they can overlap without choking the browser
+            const tickClone = clickAudio.current.cloneNode();
+            tickClone.volume = 0.4; 
+            tickClone.play().catch(e => console.log("Audio blocked:", e));
           }
           lastWedge = currentWedge;
         }
@@ -207,7 +209,6 @@ export default function Wheel() {
     };
 
     if (spinPhase === 'spinning') {
-      if (clickAudio.current) clickAudio.current.volume = 0.4;
       animationFrameId = requestAnimationFrame(watchWheelRotation);
     }
 
