@@ -362,7 +362,44 @@
   color: #6b7280;
 }
 
-/* ================ WINNER SECTION ================ */
+/* ===== MOBILE RESPONSIVENESS FOR WHEEL  ===== */
+@media (max-width: 768px) {
+  
+  .wheel-layout-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .wheel-display-area {
+    padding: 1rem 0;
+  }
+
+  .physical-wheel {
+    width: 350px;
+    height: 350px;
+    border-width: 8px;
+  }
+
+  .wheel-slice {
+    width: 114px;
+    margin-left: -57px;
+  }
+
+  .wheel-pointer {
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 28px solid var(--accent-blue);
+    transform: translate(-50%, 165px);
+  }
+
+  .question-mark {
+    font-size: 2.5rem;
+    margin-top: 25px;
+  }
+}
+
+/* ===== DESKTOP WINNER SECTION ====== */
 .winner-celebration-section {
   padding: 4rem;
   text-align: center;
@@ -378,10 +415,33 @@
   background-color: #111827;
   padding: 2rem;
   border-radius: 12px;
+  align-items: flex-start; 
 }
 
 .winner-card img {
   width: 200px;
+  height: auto;
+  flex-shrink: 0;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 768px) {
+  
+  .winner-celebration-section {
+    padding: 2rem 1rem;
+  }
+
+  .winner-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center; 
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .winner-card img {
+    width: 180px;
+  }
 }
