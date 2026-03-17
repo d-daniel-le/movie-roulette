@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './Trending.css';
 
 export default function Trending() {
   const [movies, setMovies] = useState([]);
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 1. Create Refs for the scrollable containers
+  const trendingMoviesRef = useRef(null);
+  const trendingPeopleRef = useRef(null);
 
   useEffect(() => {
     const options = {
@@ -30,14 +34,38 @@ export default function Trending() {
       .catch(err => console.error(err));
   }, []);
 
+  // 2. Add the Mouse Wheel Scroll Effect
+  useEffect(() => {
+    const handleWheelScroll = (e) => {
+      // If moving the scroll wheel vertically...
+      if (e.deltaY !== 0) {
+        e.preventDefault(); // Stop the whole page from scrolling down
+        e.currentTarget.scrollLeft += e.deltaY; // Move the carousel sideways instead
+      }
+    };
+
+    const moviesRef = trendingMoviesRef.current;
+    const peopleRef = trendingPeopleRef.current;
+
+    // We use { passive: false } so preventDefault() is allowed to block the page scroll
+    if (moviesRef) moviesRef.addEventListener('wheel', handleWheelScroll, { passive: false });
+    if (peopleRef) peopleRef.addEventListener('wheel', handleWheelScroll, { passive: false });
+
+    return () => {
+      if (moviesRef) moviesRef.removeEventListener('wheel', handleWheelScroll);
+      if (peopleRef) peopleRef.removeEventListener('wheel', handleWheelScroll);
+    };
+  }, [loading]); // Re-attach if loading state changes the DOM
+
   if (loading) return <p>Loading trending content...</p>;
 
   const featuredMovie = movies[0];
 
   return (
-   <div style={{ paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '2rem', textAlign: 'center' }}>
+    // Replaced inline styling with a class for mobile CSS control
+    <div className="trending-page-container">
 
-    {featuredMovie && (
+      {featuredMovie && (
         <div className="featured-movie" style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 60%, #111 100%), url(https://image.tmdb.org/t/p/original${featuredMovie.backdrop_path})`,
         }}>
@@ -46,7 +74,7 @@ export default function Trending() {
       )}
       
       <h2>Trending Movies</h2>
-      <div className="movie-scroller">
+      <div className="movie-scroller" ref={trendingMoviesRef}>
         {movies.map((movie) => (
           <div className="poster-placeholder-trending" key={movie.id}>
             <img 
@@ -60,7 +88,7 @@ export default function Trending() {
       </div>
 
       <h2>Trending People</h2>
-      <div className="movie-scroller">
+      <div className="movie-scroller" ref={trendingPeopleRef}>
         {people.map((person) => (
           <div className="poster-placeholder-trending" key={person.id}>
             <img 

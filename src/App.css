@@ -445,3 +445,39 @@
     width: 180px;
   }
 }
+
+/* ===== MOBILE RESPONSIVENESS FOR HOME PAGE ===== */
+@media (max-width: 768px) {
+  
+  .hero-section {
+    padding: 0 1.5rem;
+    justify-content: center;
+    text-align: center; 
+  }
+
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .popular-section, 
+  .upcoming-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .section-header h2,
+  .upcoming-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .movie-card {
+    width: 130px; 
+  }
+
+  .movie-info h3 {
+    font-size: 0.9rem;
+  }
+}

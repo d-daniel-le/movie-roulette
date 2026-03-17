@@ -4,7 +4,6 @@ import { getAuth } from 'firebase/auth';
 
 export default function Wheel() {
   // 1. STATE MANAGEMENT
-  // Filter Array States
   const [selectedDecades, setSelectedDecades] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedCerts, setSelectedCerts] = useState([]);
@@ -26,7 +25,6 @@ export default function Wheel() {
 
   // 1.5 NAVIGATION & AUTH
   const navigate = useNavigate();
-  // Ensure Firebase is initialized elsewhere in your project for this to work!
   const auth = getAuth();
 
   // 2. REFS FOR SCROLLING, WHEEL MEASUREMENT, AND AUDIO
@@ -34,7 +32,7 @@ export default function Wheel() {
   const wheelRef = useRef(null);
   const clickAudio = useRef(typeof Audio !== "undefined" ? new Audio('/tick.mp3') : null);
 
-  // Helper to toggle checkbox selections in our arrays
+  // Helper to toggle checkbox selections in arrays
   const toggleSelection = (setter, stateArray, value) => {
     if (stateArray.includes(value)) {
       setter(stateArray.filter(item => item !== value));
@@ -88,25 +86,25 @@ export default function Wheel() {
     };
 
     try {
-      // Step 1: Fetch page 1 to see how many total pages of movies match these filters
+      // Fetch page 1 to see how many total pages of movies match these filters
       const initialResponse = await fetch(`${baseUrl}&page=1`, fetchOptions);
       const initialData = await initialResponse.json();
       
       if (initialData.results && initialData.total_results >= 10) {
         
-        // Step 2: Pick a random page from the results (capped at top 20 pages)
+        // Pick a random page from the results
         const maxPage = Math.min(initialData.total_pages, 20);
         const randomPage = Math.floor(Math.random() * maxPage) + 1;
 
         let finalData = initialData;
         
-        // Step 3: Fetch that specific random page if it isn't page 1
+        // Fetch that specific random page if it isn't page 1
         if (randomPage !== 1) {
             const pageResponse = await fetch(`${baseUrl}&page=${randomPage}`, fetchOptions);
             finalData = await pageResponse.json();
         }
 
-        // Step 4: Robust shuffle of the 20 results
+        // Robust shuffle of the 20 results
         const shuffledResults = [...finalData.results];
         for (let i = shuffledResults.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -129,10 +127,8 @@ export default function Wheel() {
         
         const rotationsToZero = 360 - (rotation % 360);
         
-        // Adjusted to 6 for the perfect max speed balance
         const baseSpins = 360 * 6; 
         
-        // Add 180 degrees to stop exactly at the bottom arrow
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
         const newRotation = rotation + targetDegree;
         
@@ -191,12 +187,10 @@ export default function Wheel() {
         let angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
         if (angle < 0) angle += 360; 
 
-        // 10 wedges = 36 degrees per wedge
         const currentWedge = Math.floor(angle / 36);
 
         if (currentWedge !== lastWedge) {
           if (clickAudio.current) {
-            // Clone the audio node so they can overlap without choking the browser
             const tickClone = clickAudio.current.cloneNode();
             tickClone.volume = 0.4; 
             tickClone.play().catch(e => console.log("Audio blocked:", e));
