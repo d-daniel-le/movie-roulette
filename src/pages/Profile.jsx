@@ -1,7 +1,9 @@
 import { AuthContext } from "../components/AuthProvider";
 import { useContext, useEffect, useState } from "react";
 import "./Profile.css"
-import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile, getAuth, signOut } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, signOut, updateEmail, updateProfile } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 function Profile(){
@@ -17,6 +19,10 @@ function Profile(){
     const [reauthPassword, setReauthPassword] = useState("")
     const [reauthPasswordMessage, setReauthPasswordMessage] = useState("")
     const [hiddenReauthPasswordMessage, setHiddenReauthPasswordMessage] = useState(true)
+    const [usernameErrorMessage, setUsernameErrorMessage] = useState("")
+    const [hiddenUsernameErrorMessage, setHiddenUsernameErrorMessage] = useState(true)
+
+    const navigate = useNavigate()
 
     // NEW: Initialize navigation and auth for the logout function
     const navigate = useNavigate();
@@ -37,12 +43,28 @@ function Profile(){
     // Edit Information button - click function
     const setEditInformation = () =>{
         setCurrentlyEdit(true)
+        setEmailErrorMessage("")
+        setHiddenEmailErrorMessage(true)
+        setReauthPassword("")
+        setReauthPasswordMessage("")
+        setHiddenReauthPasswordMessage(true)
+        setReauthAccount(false)
+        setCurrentDisplayNameValue(user.displayName)
+        setCurrentEmailValue(user.email)
     }
     
     // Cancel Edit button - click function
     const setCancelEdit = () =>{
         setCurrentlyEdit(false)
-    }
+        setEmailErrorMessage("")
+        setHiddenEmailErrorMessage(true)
+        setReauthPassword("")
+        setReauthPasswordMessage("")
+        setHiddenReauthPasswordMessage(true)
+        setReauthAccount(false)
+        setCurrentDisplayNameValue(user.displayName)
+        setCurrentEmailValue(user.email)
+}
 
     // NEW: Logout button - click function
     const handleLogout = async () => {
@@ -66,7 +88,17 @@ function Profile(){
             await updateEmail(user, currentEmailValue.trim())
             await updateProfile(user, {
                 displayName : currentDisplayNameValue
-            })    
+            })
+            await updateDoc(doc(db, "userinfo", user.uid), {
+                username: currentDisplayNameValue,
+                email: currentEmailValue
+            })
+
+            setReauthPasswordMessage("")
+            setHiddenReauthPasswordMessage(true)
+            setReauthPassword("")
+            setCurrentlyEdit(false)
+            setReauthAccount(false)            
     }
         catch (error){
             setReauthPasswordMessage(error.code)
@@ -78,22 +110,23 @@ function Profile(){
     // Save Edit button - click function
     const setSaveEdit = async () =>{
         try{
-            if(currentDisplayNameValue.trim() !== user.displayName.trim()){
+            if(currentDisplayNameValue && currentDisplayNameValue.trim() !== user.displayName.trim()){
                 await updateProfile(user, {
                     displayName : currentDisplayNameValue
                 })    
     
             }
 
-            if(currentEmailValue.trim() !== user.email.trim()){
+            if(currentEmailValue && currentEmailValue.trim() !== user.email.trim()){
                 await updateEmail(user, currentEmailValue.trim())
                 setEmailErrorMessage("")
                 setHiddenEmailErrorMessage(true)
             }
-            else{
-                setEmailErrorMessage("New email can't be the same as the current one")
-                setHiddenEmailErrorMessage(false)
-            }
+
+            await updateDoc(doc(db, "userinfo", user.uid), {
+                username: currentDisplayNameValue,
+                email: currentEmailValue
+            })
 
             setCurrentlyEdit(false)
             setReauthAccount(false)
@@ -101,10 +134,42 @@ function Profile(){
         }
         catch (error){
             if (error.code === "auth/requires-recent-login"){
+                setEmailErrorMessage("")
+                setHiddenEmailErrorMessage(true)
                 setReauthAccount(true)
                 setCurrentlyEdit(true)
             }
+            else if (error.code === "auth/invalid-email"){
+                setEmailErrorMessage("Invalid Email")
+                setHiddenEmailErrorMessage(false)
+                setCurrentlyEdit(true)
+            }
+            else if (error.code === "auth/email-already-in-use"){
+                setEmailErrorMessage("Email is already used in a different account")
+                setHiddenEmailErrorMessage(false)
+                setCurrentlyEdit(true)
+            }
+            else if (error.code === "auth/network-request-failed"){
+                setEmailErrorMessage("Something happened to your request. Please try again!")
+                setHiddenEmailErrorMessage(false)
+                setCurrentlyEdit(true)
+            }
+            else{
+                setEmailErrorMessage("Something went wrong. Please try again!")
+                setHiddenEmailErrorMessage(false)
+                setCurrentlyEdit(true)
+            }
             console.log(error)
+        }
+    }
+
+    const signOutUser = async () =>{
+        try{
+            await signOut(auth)
+            navigate("/login")
+        }
+        catch (error){
+            console.log(error.code)
         }
     }
 
@@ -119,6 +184,8 @@ function Profile(){
     if (!user){
         return <p>Loading User...</p>
     }
+
+
     
     return(
         <nav className="profile-nav">
@@ -135,8 +202,7 @@ function Profile(){
                     <button className="watched-history" onClick={setWatchedContentHidden}>Watched History</button>
 
                     <hr />
-                    {/* UPDATED: Added onClick to trigger handleLogout */}
-                    <button className="profile-logout-btn" onClick={handleLogout}>Logout</button>
+                    <button className="profile-logout-btn" onClick={signOutUser}>Logout</button>
                     
                 </div>
             </div>
@@ -156,15 +222,16 @@ function Profile(){
                     <div className="user-account-information">
                         <dl>
                             <div className="user-account-name">
+                                <p hidden={hiddenUsernameErrorMessage}>{usernameErrorMessage}</p>
                                 <dt>Name:</dt>
-                                {currentlyEdit? <input type="text" value={currentDisplayNameValue} onChange={(event)=>{setCurrentDisplayNameValue(event.target.value)}}/> : <dd>{user.displayName}</dd>}                               
+                                {currentlyEdit? <input className={hiddenUsernameErrorMessage? "" : "invalid-username"} type="text" value={currentDisplayNameValue} onChange={(event)=>{setCurrentDisplayNameValue(event.target.value)}}/> : <dd>{user.displayName}</dd>}                                
 
                             </div>
 
                             <div className="user-account-email">
                                 <p hidden={hiddenEmailErrorMessage}>{emailErrorMessage}</p>
                                 <dt>Email:</dt>
-                                {currentlyEdit? <input type="email" value={currentEmailValue} onChange={(event)=>{setCurrentEmailValue(event.target.value)}}/> : <dd>{user.email}</dd>}  
+                                {currentlyEdit? <input className={hiddenEmailErrorMessage? "" : "invalid-email"} type="email" value={currentEmailValue} onChange={(event)=>{setCurrentEmailValue(event.target.value)}}/> : <dd>{user.email}</dd>}  
                             </div>
 
                             {/* Only show the password part when the user make an edit to the email */}
@@ -175,8 +242,8 @@ function Profile(){
                                     <div className="reauth-password">
                                         <p hidden={hiddenReauthPasswordMessage}>{reauthPasswordMessage}</p>
                                         <dt>Password:</dt>
-                                        <input type="text" value={reauthPassword} onChange={(event) => {setReauthPassword(event.target.value)}}/>
-                                        <button>Verify</button>
+                                        <input type="password" value={reauthPassword} onChange={(event) => {setReauthPassword(event.target.value)}}/>
+                                        <button onClick={reauthenticateAccount}>Verify</button>
                                     </div>
                                 </div> : null
                             }
@@ -189,7 +256,7 @@ function Profile(){
 
                         <button hidden={currentlyEdit} onClick={setEditInformation}>Edit Information</button>
                         <div className="save-cancel-edit">
-                            <button hidden={!currentlyEdit || reauthAccount}>Save</button>
+                            <button hidden={!currentlyEdit || reauthAccount} onClick={setSaveEdit}>Save</button>
                             <button hidden={!currentlyEdit || reauthAccount} onClick={setCancelEdit}>Cancel</button>
                         </div>
 

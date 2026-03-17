@@ -169,3 +169,27 @@ dd{
     gap: 25px;
     width: 50%;
 }
+
+.user-account-name input{
+    background-color: transparent;
+    color: #ffffff;
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.invalid-username{
+    border: .5px solid red;
+}
+
+.user-account-email input{
+    background-color: transparent;
+    color: #ffffff;
+    border: .5px solid #ffffff;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.invalid-email{
+    border: .5px solid red;
+}
