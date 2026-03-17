@@ -33,3 +33,55 @@
 .cardimg {
     border-radius: 8px;
 }
+
+/* =======================================================
+   DESKTOP CONTAINER STYLING 
+   (Replaces the inline styles from JSX)
+   ======================================================= */
+.trending-page-container {
+  padding: 0 2rem 2rem 2rem;
+  text-align: center;
+}
+
+/* Ensure the cards don't shrink or stretch weirdly by default */
+.poster-placeholder-trending {
+  flex: 0 0 auto;
+  width: 200px; /* Standard desktop size */
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 768px) {
+  
+  .trending-page-container {
+    padding: 0 1rem 1.5rem 1rem; 
+  }
+
+  .featured-movie {
+    background-position: center;
+    min-height: 250px;
+  }
+
+  .h1-trending {
+    font-size: 2rem; 
+    padding: 0 1rem;
+  }
+
+  .trending-page-container h2 {
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .poster-placeholder-trending {
+    width: 130px; 
+  }
+
+  .cardimg {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .poster-placeholder-trending p {
+    font-size: 0.9rem;
+  }
+}
