@@ -2,11 +2,13 @@ import { AuthContext } from "../components/AuthProvider";
 import { useContext, useEffect, useState } from "react";
 import "./Profile.css"
 import { EmailAuthProvider, reauthenticateWithCredential, signOut, updateEmail, updateProfile } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 function Profile(){
+
+    // Component STate
     const [hiddenMyInfo, setHiddenMyInfo] = useState(false);
     const [hiddenWatchedContent, setHiddenWatchedContent] = useState(true);
     const [currentlyEdit, setCurrentlyEdit] = useState(false);
@@ -21,7 +23,9 @@ function Profile(){
     const [hiddenReauthPasswordMessage, setHiddenReauthPasswordMessage] = useState(true)
     const [usernameErrorMessage, setUsernameErrorMessage] = useState("")
     const [hiddenUsernameErrorMessage, setHiddenUsernameErrorMessage] = useState(true)
+    const [chosenMovie, setChosenMovie] = useState([])
 
+    // Initialize Navigate
     const navigate = useNavigate()
 
     // My Information button - click function
@@ -41,6 +45,8 @@ function Profile(){
         setCurrentlyEdit(true)
         setEmailErrorMessage("")
         setHiddenEmailErrorMessage(true)
+        setUsernameErrorMessage("")
+        setHiddenUsernameErrorMessage(true)
         setReauthPassword("")
         setReauthPasswordMessage("")
         setHiddenReauthPasswordMessage(true)
@@ -54,6 +60,8 @@ function Profile(){
         setCurrentlyEdit(false)
         setEmailErrorMessage("")
         setHiddenEmailErrorMessage(true)
+        setUsernameErrorMessage("")
+        setHiddenUsernameErrorMessage(true)
         setReauthPassword("")
         setReauthPasswordMessage("")
         setHiddenReauthPasswordMessage(true)
@@ -72,13 +80,17 @@ function Profile(){
             await reauthenticateWithCredential(user, credential)
             await updateEmail(user, currentEmailValue.trim())
             await updateProfile(user, {
-                displayName : currentDisplayNameValue
+                displayName : currentDisplayNameValue.trim()
             })
             await updateDoc(doc(db, "userinfo", user.uid), {
-                username: currentDisplayNameValue,
-                email: currentEmailValue
+                username: currentDisplayNameValue.trim(),
+                email: currentEmailValue.trim()
             })
 
+            setUsernameErrorMessage("")
+            setHiddenUsernameErrorMessage(true)
+            setEmailErrorMessage("")
+            setHiddenEmailErrorMessage(true)
             setReauthPasswordMessage("")
             setHiddenReauthPasswordMessage(true)
             setReauthPassword("")
@@ -94,25 +106,44 @@ function Profile(){
 
     // Save Edit button - click function
     const setSaveEdit = async () =>{
+        setUsernameErrorMessage("")
+        setHiddenUsernameErrorMessage(true)
+        setEmailErrorMessage("")
+        setHiddenEmailErrorMessage(true)
+
         try{
-            if(currentDisplayNameValue && currentDisplayNameValue.trim() !== user.displayName.trim()){
+            if (!currentDisplayNameValue.trim()){
+                setUsernameErrorMessage("Invalid username")
+                setHiddenUsernameErrorMessage(false)
+                return
+            }
+            else if(currentDisplayNameValue && currentDisplayNameValue.trim() !== user.displayName.trim()){
                 await updateProfile(user, {
-                    displayName : currentDisplayNameValue
+                    displayName : currentDisplayNameValue.trim()
                 })    
     
             }
 
-            if(currentEmailValue && currentEmailValue.trim() !== user.email.trim()){
+            if(!currentEmailValue.trim()){
+                setEmailErrorMessage("Invalid email")
+                setHiddenEmailErrorMessage(false)
+                return
+            }
+            else if(currentEmailValue && currentEmailValue.trim() !== user.email.trim()){
                 await updateEmail(user, currentEmailValue.trim())
                 setEmailErrorMessage("")
                 setHiddenEmailErrorMessage(true)
             }
 
             await updateDoc(doc(db, "userinfo", user.uid), {
-                username: currentDisplayNameValue,
-                email: currentEmailValue
+                username: currentDisplayNameValue.trim(),
+                email: currentEmailValue.trim()
             })
 
+            setEmailErrorMessage("")
+            setHiddenEmailErrorMessage(true)
+            setUsernameErrorMessage("")
+            setHiddenUsernameErrorMessage(true)
             setCurrentlyEdit(false)
             setReauthAccount(false)
 
@@ -162,9 +193,30 @@ function Profile(){
         if (user){
             setCurrentDisplayNameValue(`${user.displayName}`)
             setCurrentEmailValue(`${user.email}`)
-            // console.log(user)
         }
     }, [user])
+
+    // Get Movie
+
+    useEffect(()=>{
+
+        const readDoc = async ()=>{
+            const getDocuments = await getDocs(collection(db, "userinfo", user.uid, "history"))
+            const movies = getDocuments.docs.map((document) => {return document.data().movie})
+            setChosenMovie(movies)
+
+        }
+
+        if(user){
+            readDoc()
+        }
+        
+
+    },[user])
+
+
+
+
 
     if (!user){
         return <p>Loading User...</p>
@@ -251,7 +303,24 @@ function Profile(){
 
                 {/* User Spinned/Watched History */}
                 <div className="profile-watched-content" hidden={hiddenWatchedContent}>
-                    <p>Watch History Content</p>
+
+                    <div className="profile-watched-history">
+                        <h3>Spinned History</h3>
+                    </div>
+
+                    <div className="movie-scroller">
+                        {chosenMovie.map((movie) => (
+                        <div className="poster-placeholder-trending" key={movie.id}>
+                            <img 
+                            className='cardimg'
+                            src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
+                            alt={movie.title} 
+                            />
+                            <p><strong>{movie.title}</strong></p>
+                        </div>
+                        ))}
+                    </div>
+
                 </div>
 
             </div>
