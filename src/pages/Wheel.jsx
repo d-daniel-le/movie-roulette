@@ -1,8 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
+import { db } from '../firebase';
+import { addDoc, collection } from 'firebase/firestore';
+import { AuthContext } from '../components/AuthProvider';
 
 export default function Wheel() {
+  const { user } = useContext(AuthContext)
+  
   // 1. STATE MANAGEMENT
   // Filter Array States
   const [selectedDecades, setSelectedDecades] = useState([]);
@@ -143,6 +148,9 @@ export default function Wheel() {
         setTimeout(() => {
           setSpinPhase('finished');
           const winningMovie = top10[winningIndex];
+          addDoc(collection(db, "userinfo", user.uid , "history"), {
+            movie : winningMovie
+          })
           const imageUrl = winningMovie.poster_path 
             ? `https://image.tmdb.org/t/p/w500${winningMovie.poster_path}` 
             : 'placeholder.jpg';

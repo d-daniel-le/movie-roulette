@@ -193,3 +193,83 @@ dd{
 .invalid-email{
     border: .5px solid red;
 }
+
+
+/* Watched History - Movie tiles */
+
+.profile-watched-content{
+    width: 1400px;
+}
+
+.profile-watched-content .poster-placeholder-trending{
+    flex: 0 0 auto;
+}
+
+.poster-placeholder-trending {
+    margin-top: 1rem;
+    transition: transform 0.2s;
+    width: 250px;
+  }
+  
+  .poster-placeholder-trending:hover {
+    transform: scale(1.05);
+  }
+  
+  .featured-movie {
+    background-size: cover;
+    background-position: center top;
+    position: relative;
+    height: 60vh;
+    display: 'flex';
+    align-items: flex;
+  }
+  
+  .h1-trending {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .movie-scroller {
+    display: flex; 
+    overflow-x: auto; 
+    gap: 15px; 
+    overflow-y: hidden;
+  }
+  
+  .cardimg {
+      border-radius: 8px;
+  }
+
+  /* ================ SCROLLER SETTINGS ================ */
+.profile-watched-content .movie-scroller{
+    width: 100%;
+    max-width: 100%;
+}
+
+.movie-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    overflow-y: hidden;
+  }
+  
+  .movie-scroller::-webkit-scrollbar {
+    height: 1.3rem;
+  }
+  
+  .movie-scroller::-webkit-scrollbar-track {
+    border-radius: 6px;
+  }
+  .movie-scroller::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+  }
+  
+  .movie-scroller:hover::-webkit-scrollbar-track {
+    background-color: rgba(134, 134, 134, 0.1);
+  }
+  
+  .movie-scroller:hover::-webkit-scrollbar-thumb {
+    background-color: hsla(0, 0%, 27%, 0.2);
+  }
+  
