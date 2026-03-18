@@ -426,6 +426,43 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
+/* ===== STREAMING PROVIDER LOGOS ===== */
+.streaming-providers {
+  margin-top: 1.5rem;
+}
+
+.streaming-providers h4 {
+  font-size: 1.1rem;
+  color: #9ca3af; 
+  margin-bottom: 0.8rem;
+}
+
+.provider-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.winner-details .provider-logo {
+  width: 40px;
+  height: 40px;
+  min-width: 40px; 
+  border-radius: 8px; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+  object-fit: contain; 
+}
+
+.winner-details .provider-logo:hover {
+  transform: scale(1.15);
+}
+
+.no-providers-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 768px) {
   

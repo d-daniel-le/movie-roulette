@@ -140,6 +140,19 @@ export default function Wheel() {
         setRotation(newRotation);
         setSpinPhase('spinning');
 
+        // Fetch streaming providers quietly in the background while the wheel spins
+        let watchProviders = [];
+        try {
+          const winningMovie = top10[winningIndex];
+          const providerRes = await fetch(`https://api.themoviedb.org/3/movie/${winningMovie.id}/watch/providers`, fetchOptions);
+          const providerData = await providerRes.json();
+          if (providerData.results?.US?.flatrate) {
+            watchProviders = providerData.results.US.flatrate;
+          }
+        } catch (providerError) {
+          console.error("Failed to fetch providers:", providerError);
+        }
+
         // Wait for the 8-second CSS transition to finish before showing the winner
         setTimeout(() => {
           setSpinPhase('finished');
@@ -155,7 +168,8 @@ export default function Wheel() {
             title: winningMovie.title,
             year: winningMovie.release_date ? winningMovie.release_date.split('-')[0] : 'Unknown',
             overview: winningMovie.overview,
-            poster: imageUrl 
+            poster: imageUrl,
+            providers: watchProviders
           });
         }, 8500); 
 
@@ -353,7 +367,30 @@ export default function Wheel() {
             <div className="winner-details">
               <h3>{winner.title} ({winner.year})</h3>
               <p>{winner.overview}</p>
-              <button className="watch-now-btn">Where to Watch</button>
+              
+              {/* Replaced the static button with dynamic streaming providers */}
+              {winner.providers && winner.providers.length > 0 ? (
+                <div className="streaming-providers">
+                  <h4>Available on:</h4>
+                  <div className="provider-logos">
+                    {winner.providers.map(provider => (
+                      <img 
+                        key={provider.provider_id} 
+                        src={`https://image.tmdb.org/t/p/original${provider.logo_path}`} 
+                        alt={provider.provider_name} 
+                        title={provider.provider_name}
+                        className="provider-logo"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="streaming-providers">
+                  <h4>Available on:</h4>
+                  <p className="no-providers-text">No subscription streaming data available.</p>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
