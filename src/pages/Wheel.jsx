@@ -325,7 +325,12 @@ export default function Wheel() {
                   {spot.isPlaceholder ? (
                     <span className="question-mark">?</span>
                   ) : (
-                    <img src={spot.poster} alt={spot.title} className="poster-image" />
+                    <img 
+                      src={spot.poster || 'https://placehold.co/500x750?text=No+Poster'}
+                      onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                      alt={spot.title} 
+                      className="poster-image" 
+                    />
                   )}
                 </div>
               </div>
@@ -340,7 +345,11 @@ export default function Wheel() {
         <div className="winner-celebration-section" ref={resultSectionRef}>
           <h2>We Have a Winner!</h2>
           <div className="winner-card">
-            <img src={winner.poster} alt={`Poster for ${winner.title}`} />
+            <img 
+              src={winner.poster || 'https://placehold.co/500x750?text=No+Poster'}
+              onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+              alt={`Poster for ${winner.title}`} 
+            />
             <div className="winner-details">
               <h3>{winner.title} ({winner.year})</h3>
               <p>{winner.overview}</p>

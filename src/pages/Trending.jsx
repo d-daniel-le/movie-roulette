@@ -5,6 +5,8 @@ export default function Trending() {
   const [movies, setMovies] = useState([]);
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [movieDetails, setMovieDetails] = useState(null);
 
   // 1. Create Refs for the scrollable containers
   const trendingMoviesRef = useRef(null);
@@ -57,6 +59,25 @@ export default function Trending() {
     };
   }, [loading]); // Re-attach if loading state changes the DOM
 
+  // Function to fetch detailed movie information
+  const fetchMovieDetails = async (movieId) => {
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+      }
+    };
+
+    try {
+      const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options);
+      const data = await response.json();
+      setMovieDetails(data);
+    } catch (error) {
+      console.error('Error fetching movie details:', error);
+    }
+  };
+
   if (loading) return <p>Loading trending content...</p>;
 
   const featuredMovie = movies[0];
@@ -76,7 +97,10 @@ export default function Trending() {
       <h2>Trending Movies</h2>
       <div className="movie-scroller" ref={trendingMoviesRef}>
         {movies.map((movie) => (
-          <div className="poster-placeholder-trending" key={movie.id}>
+          <div className="poster-placeholder-trending" key={movie.id} onClick={() => {
+            setSelectedMovie(movie);
+            fetchMovieDetails(movie.id);
+          }}>
             <img 
               className='cardimg'
               src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
@@ -100,6 +124,36 @@ export default function Trending() {
           </div>
         ))}
       </div>
+
+      {selectedMovie && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => {
+              setSelectedMovie(null);
+              setMovieDetails(null);
+            }}>&times;</span>
+            <div className="modal-movie-details">
+              <img 
+                src={selectedMovie.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
+                  : 'https://placehold.co/500x750?text=No+Poster'}
+                onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                alt={selectedMovie.title}
+                className="modal-movie-poster"
+              />
+              <div className="modal-movie-info">
+                <h2>{selectedMovie.title}</h2>
+                <div className="movie-details">
+                  <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
+                  <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
+                  <p className="movie-runtime"><strong>Runtime:</strong> {movieDetails?.runtime ? `${movieDetails.runtime} minutes` : 'Loading...'}</p>
+                </div>
+                <p className="movie-overview">{selectedMovie.overview || 'No description available.'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
