@@ -5,6 +5,8 @@ import { db } from '../firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import { AuthContext } from '../components/AuthProvider';
 
+import './Wheel.css'; //
+
 export default function Wheel() {
   const { user } = useContext(AuthContext)
   
