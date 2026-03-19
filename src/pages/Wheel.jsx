@@ -69,7 +69,8 @@ export default function Wheel() {
     setSpinPhase('fetching');
 
     const token = import.meta.env.VITE_TMDB_API_TOKEN_AUTH; 
-    let baseUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc`;
+    
+    let baseUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&region=US&with_original_language=en&sort_by=popularity.desc`;
 
     if (selectedGenres.length > 0) baseUrl += `&with_genres=${selectedGenres.join('|')}`;
     if (selectedCerts.length > 0) baseUrl += `&certification_country=US&certification=${selectedCerts.join('|')}`;
@@ -111,8 +112,15 @@ export default function Wheel() {
             finalData = await pageResponse.json();
         }
 
-        // Robust shuffle of the 20 results
-        const shuffledResults = [...finalData.results];
+        const validMovies = finalData.results.filter(movie => movie.poster_path);
+
+        if (validMovies.length < 10) {
+            alert("Not enough valid movies with posters matched this spin! Try spinning again.");
+            setSpinPhase('idle');
+            return;
+        }
+
+        const shuffledResults = [...validMovies];
         for (let i = shuffledResults.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffledResults[i], shuffledResults[j]] = [shuffledResults[j], shuffledResults[i]];
@@ -123,7 +131,7 @@ export default function Wheel() {
         
         const formattedSpots = top10.map(movie => ({
           title: movie.title,
-          poster: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+          poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
           isPlaceholder: false
         }));
         
@@ -131,18 +139,15 @@ export default function Wheel() {
 
         // --- SPIN PHYSICS MATH ---
         const winningIndex = Math.floor(Math.random() * 10);
-        
         const rotationsToZero = 360 - (rotation % 360);
-        
         const baseSpins = 360 * 6; 
-        
         const targetDegree = rotationsToZero + baseSpins + 180 - (winningIndex * 36);
         const newRotation = rotation + targetDegree;
         
         setRotation(newRotation);
         setSpinPhase('spinning');
 
-        // Fetch streaming providers quietly in the background while the wheel spins
+        // Fetch streaming providers in the background while the wheel spins
         let watchProviders = [];
         try {
           const winningMovie = top10[winningIndex];
@@ -155,22 +160,20 @@ export default function Wheel() {
           console.error("Failed to fetch providers:", providerError);
         }
 
-        // Wait for the 8-second CSS transition to finish before showing the winner
+        // Wait for the 8.5-second CSS transition to finish before showing the winner
         setTimeout(() => {
           setSpinPhase('finished');
           const winningMovie = top10[winningIndex];
+          
           addDoc(collection(db, "userinfo", user.uid , "history"), {
             movie : winningMovie
-          })
-          const imageUrl = winningMovie.poster_path 
-            ? `https://image.tmdb.org/t/p/w500${winningMovie.poster_path}` 
-            : 'placeholder.jpg';
+          });
 
           setWinner({
             title: winningMovie.title,
             year: winningMovie.release_date ? winningMovie.release_date.split('-')[0] : 'Unknown',
             overview: winningMovie.overview,
-            poster: imageUrl,
+            poster: `https://image.tmdb.org/t/p/w500${winningMovie.poster_path}`,
             providers: watchProviders
           });
         }, 8500); 
