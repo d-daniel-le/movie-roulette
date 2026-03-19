@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import { AuthContext } from '../components/AuthProvider';
 
-import './Wheel.css'; //
+import './Wheel.css';
 
 export default function Wheel() {
   const { user } = useContext(AuthContext)
@@ -70,6 +70,7 @@ export default function Wheel() {
 
     const token = import.meta.env.VITE_TMDB_API_TOKEN_AUTH; 
     
+    // API UPDATE: Added region=US and with_original_language=en to the base query
     let baseUrl = `https://api.themoviedb.org/3/discover/movie?language=en-US&region=US&with_original_language=en&sort_by=popularity.desc`;
 
     if (selectedGenres.length > 0) baseUrl += `&with_genres=${selectedGenres.join('|')}`;
@@ -112,14 +113,17 @@ export default function Wheel() {
             finalData = await pageResponse.json();
         }
 
+        // API UPDATE: Filter out any movies missing a poster BEFORE shuffling
         const validMovies = finalData.results.filter(movie => movie.poster_path);
 
+        // API UPDATE: Safety check to ensure we still have 10 movies after filtering
         if (validMovies.length < 10) {
             alert("Not enough valid movies with posters matched this spin! Try spinning again.");
             setSpinPhase('idle');
             return;
         }
 
+        // Robust shuffle of the 20 results (now validMovies)
         const shuffledResults = [...validMovies];
         for (let i = shuffledResults.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -147,7 +151,7 @@ export default function Wheel() {
         setRotation(newRotation);
         setSpinPhase('spinning');
 
-        // Fetch streaming providers in the background while the wheel spins
+        // Fetch streaming providers quietly in the background while the wheel spins
         let watchProviders = [];
         try {
           const winningMovie = top10[winningIndex];
@@ -257,11 +261,25 @@ export default function Wheel() {
       <div className="wheel-layout-grid">
         
         {/* Left Column: Filters */}
-        <aside className="filters-sidebar">
+        {/* A11Y UPDATE: Added aria-label to sidebar */}
+        <aside className="filters-sidebar" aria-label="Wheel Filters">
           <h3 style={{ marginBottom: '1.5rem' }}>Set Your Criteria</h3>
           
           <div className="filter-group">
-            <div className="filter-accordion-header" onClick={() => toggleAccordion('decades')}>
+            {/* A11Y UPDATE: Added button roles, aria-expanded, and keyboard navigation to accordions */}
+            <div 
+              className="filter-accordion-header" 
+              role="button" 
+              tabIndex="0" 
+              aria-expanded={expanded.decades}
+              onClick={() => toggleAccordion('decades')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleAccordion('decades');
+                }
+              }}
+            >
               <span>Decades</span><span>{expanded.decades ? '▼' : '▶'}</span>
             </div>
             {expanded.decades && (
@@ -277,7 +295,19 @@ export default function Wheel() {
           </div>
 
           <div className="filter-group">
-            <div className="filter-accordion-header" onClick={() => toggleAccordion('genres')}>
+            <div 
+              className="filter-accordion-header" 
+              role="button" 
+              tabIndex="0" 
+              aria-expanded={expanded.genres}
+              onClick={() => toggleAccordion('genres')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleAccordion('genres');
+                }
+              }}
+            >
               <span>Genres</span><span>{expanded.genres ? '▼' : '▶'}</span>
             </div>
             {expanded.genres && (
@@ -293,7 +323,19 @@ export default function Wheel() {
           </div>
 
           <div className="filter-group">
-            <div className="filter-accordion-header" onClick={() => toggleAccordion('certs')}>
+            <div 
+              className="filter-accordion-header" 
+              role="button" 
+              tabIndex="0" 
+              aria-expanded={expanded.certs}
+              onClick={() => toggleAccordion('certs')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleAccordion('certs');
+                }
+              }}
+            >
               <span>Certification</span><span>{expanded.certs ? '▼' : '▶'}</span>
             </div>
             {expanded.certs && (
@@ -309,7 +351,19 @@ export default function Wheel() {
           </div>
 
           <div className="filter-group">
-            <div className="filter-accordion-header" onClick={() => toggleAccordion('ratings')}>
+            <div 
+              className="filter-accordion-header" 
+              role="button" 
+              tabIndex="0" 
+              aria-expanded={expanded.ratings}
+              onClick={() => toggleAccordion('ratings')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleAccordion('ratings');
+                }
+              }}
+            >
               <span>Minimum Rating</span><span>{expanded.ratings ? '▼' : '▶'}</span>
             </div>
             {expanded.ratings && (
@@ -324,13 +378,19 @@ export default function Wheel() {
             )}
           </div>
 
-          <button className="spin-trigger-btn" onClick={handleSpinClick} disabled={spinPhase === 'fetching' || spinPhase === 'spinning'}>
+          <button 
+            className="spin-trigger-btn" 
+            onClick={handleSpinClick} 
+            disabled={spinPhase === 'fetching' || spinPhase === 'spinning'}
+            aria-busy={spinPhase === 'fetching' || spinPhase === 'spinning'}
+          >
             {spinPhase === 'idle' || spinPhase === 'finished' ? 'SPIN THE WHEEL' : 'SPINNING...'}
           </button>
         </aside>
 
-        {/* Right Column: The Wheel UI */}
-        <section className="wheel-display-area">
+        {/* The Wheel UI */}
+        {/* A11Y UPDATE: Hidden from screen readers to prevent confusion during rapid DOM updates */}
+        <section className="wheel-display-area" aria-hidden="true">
           <div className="wheel-pointer"></div>
           
           <div 
@@ -345,7 +405,7 @@ export default function Wheel() {
                     <span className="question-mark">?</span>
                   ) : (
                     <img 
-                      src={spot.poster || 'https://placehold.co/500x750?text=No+Poster'}
+                      src={spot.poster}
                       onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
                       alt={spot.title} 
                       className="poster-image" 
@@ -359,13 +419,14 @@ export default function Wheel() {
 
       </div>
 
-      {/* BOTTOM SECTION: The Celebration Result */}
+      {/* The Celebration Result */}
+      {/* Wrapped in an aria-live region to auto-announce the winner */}
       {winner && (
-        <div className="winner-celebration-section" ref={resultSectionRef}>
+        <div className="winner-celebration-section" ref={resultSectionRef} aria-live="polite" aria-atomic="true">
           <h2>We Have a Winner!</h2>
           <div className="winner-card">
             <img 
-              src={winner.poster || 'https://placehold.co/500x750?text=No+Poster'}
+              src={winner.poster}
               onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
               alt={`Poster for ${winner.title}`} 
             />

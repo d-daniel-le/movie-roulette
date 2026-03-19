@@ -80,7 +80,6 @@ export default function Home() {
     const popRef = popularScrollRef.current;
     const upRef = upcomingScrollRef.current;
 
-    // We use { passive: false } so preventDefault() is allowed to block the page scroll
     if (popRef) popRef.addEventListener('wheel', handleWheelScroll, { passive: false });
     if (upRef) upRef.addEventListener('wheel', handleWheelScroll, { passive: false });
 
@@ -94,36 +93,51 @@ export default function Home() {
     <>
       <main className="home-page">
         {/* Hero Section */}
-        <section className="hero-section">
+        <section className="hero-section" aria-labelledby="hero-heading">
           <div className="hero-content">
-            <h1>Leave movie night to us</h1>
+            <h1 id="hero-heading">Leave movie night to us</h1>
             <p>Choose a genre. Spin the wheel. Discover your next favorite film.</p>
           </div>
         </section>
 
         {/* Popular Movies Section Header */}
-        <section className="popular-section">
+        <section className="popular-section" aria-labelledby="popular-heading">
           <div className="section-header">
-            <h2>Popular This Week</h2>
+            <h2 id="popular-heading">Popular This Week</h2>
             <p>The most watched movies from the past 7 days</p>
           </div>
           <div className="movie-grid">
             {/* Attached the Ref here */}
-            <div className="movie-scroller" ref={popularScrollRef}>
+            {/* A11Y UPDATE: Added a11y roles to the scroller for keyboard navigation */}
+            <div className="movie-scroller" ref={popularScrollRef} role="region" aria-label="Popular Movies Carousel" tabIndex="0">
             {loading ? (
-              <p>Loading movies...</p>
+              <p aria-live="polite">Loading movies...</p>
             ) : (
               movies.map((movie) => (
-                <div key={movie.id} className="movie-card" onClick={() => {
-                  setSelectedMovie(movie);
-                  fetchMovieDetails(movie.id);
-                }}>
+                <div 
+                  key={movie.id} 
+                  className="movie-card" 
+                  role="button" 
+                  tabIndex="0"
+                  aria-label={`View details for ${movie.title}`}
+                  onClick={() => {
+                    setSelectedMovie(movie);
+                    fetchMovieDetails(movie.id);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedMovie(movie);
+                      fetchMovieDetails(movie.id);
+                    }
+                  }}
+                >
                   <img 
                     src={movie.poster_path
                       ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                       : 'https://placehold.co/500x750?text=No+Poster'}
                     onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                    alt={movie.title}
+                    alt={`Poster of ${movie.title}`}
                     className="movie-poster"
                   />
                   <div className="movie-info">
@@ -136,29 +150,44 @@ export default function Home() {
         </div>
         </section>
 
-        <section className="upcoming-section">
+        <section className="upcoming-section" aria-labelledby="upcoming-heading">
           <div className="upcoming-content">
-            <h1>Coming Soon</h1>
+            <h2 id="upcoming-heading">Coming Soon</h2>
             <p>Highly anticipated releases</p>
           </div>
 
           <div className="movie-grid">
             {/* Attached the Ref here */}
-            <div className="movie-scroller" ref={upcomingScrollRef}>
+            {/* A11Y UPDATE: Added a11y roles to the scroller for keyboard navigation */}
+            <div className="movie-scroller" ref={upcomingScrollRef} role="region" aria-label="Upcoming Movies Carousel" tabIndex="0">
             {COSLoading ? (
-              <p>Loading movies...</p>
+              <p aria-live="polite">Loading movies...</p>
             ) : (
               COSmovies.map((upcomingMovie) => (
-                <div key={upcomingMovie.id} className="movie-card" onClick={() => {
-                  setSelectedMovie(upcomingMovie);
-                  fetchMovieDetails(upcomingMovie.id);
-                }}>
+                <div 
+                  key={upcomingMovie.id} 
+                  className="movie-card" 
+                  role="button" 
+                  tabIndex="0"
+                  aria-label={`View details for ${upcomingMovie.title}`}
+                  onClick={() => {
+                    setSelectedMovie(upcomingMovie);
+                    fetchMovieDetails(upcomingMovie.id);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedMovie(upcomingMovie);
+                      fetchMovieDetails(upcomingMovie.id);
+                    }
+                  }}
+                >
                   <img 
                     src={upcomingMovie.poster_path
                       ? `https://image.tmdb.org/t/p/w500${upcomingMovie.poster_path}`
                       : 'https://placehold.co/500x750?text=No+Poster'} 
                     onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                    alt={upcomingMovie.title}
+                    alt={`Poster of ${upcomingMovie.title}`}
                     className="movie-poster"
                   />
                   <div className="movie-info">
@@ -172,24 +201,37 @@ export default function Home() {
         </section>
       </main>
 
+      {/* A11Y UPDATE: Added dialog roles for the modal */}
       {selectedMovie && (
-        <div className="modal">
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
           <div className="modal-content">
-            <span className="close" onClick={() => {
-              setSelectedMovie(null);
-              setMovieDetails(null);
-            }}>&times;</span>
+            <span 
+              className="close" 
+              role="button" 
+              tabIndex="0" 
+              aria-label="Close dialog"
+              onClick={() => {
+                setSelectedMovie(null);
+                setMovieDetails(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedMovie(null);
+                  setMovieDetails(null);
+                }
+              }}
+            >&times;</span>
             <div className="modal-movie-details">
               <img 
                 src={selectedMovie.poster_path
                   ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
                   : 'https://placehold.co/500x750?text=No+Poster'}
                 onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                alt={selectedMovie.title}
+                alt={`Poster of ${selectedMovie.title}`}
                 className="modal-movie-poster"
               />
               <div className="modal-movie-info">
-                <h2>{selectedMovie.title}</h2>
+                <h2 id="modal-title">{selectedMovie.title}</h2>
                 <div className="movie-details">
                   <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
                   <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>

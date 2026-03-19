@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa'; // Added FaBars and FaTimes
+import { FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa'; 
 import { useContext, useState } from 'react';
 import { AuthContext } from './AuthProvider';
 import "./NavBar.css"
@@ -28,13 +28,13 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // This logs the input for now. Later, you can navigate to a search results page!
     console.log("Searching TMDB for:", searchQuery); 
     setIsMobileMenuOpen(false);
   }
 
   return (
-    <nav className="navbar">
+    // Added an aria-label to the main navigation for screen readers
+    <nav className="navbar" aria-label="Main Navigation">
       {/* LEFT SIDE: Logo and Desktop Links */}
       <div className="navbar-left">
         <div className="navbar-logo">
@@ -51,42 +51,50 @@ export default function Navbar() {
       {/* RIGHT SIDE: Search, Profile, and Mobile Toggle */}
       <div className="navbar-actions">
         {/* Desktop Search */}
-        <form className="search-container desktop-only" onSubmit={handleSearch}>
+        <form className="search-container desktop-only" onSubmit={handleSearch} role="search">
           <input 
             type="text" 
             placeholder="Search movies..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
+            aria-label="Search for a movie"
           />
-          <button type="submit" className="icon-btn search-btn"><FaSearch/></button>
+          <button type="submit" className="icon-btn search-btn" aria-label="Submit search"><FaSearch/></button>
         </form>
 
         {/* Desktop Profile/Login */}
         <div className="desktop-only">
           {user ? 
-            <button className="icon-btn profile-btn" onClick={goToProfile}><FaUser /> {user.displayName || "Profile"}</button> : 
-            <button className="icon-btn user-btn" onClick={loginOnClick}><FaUser/> Login</button>
+            <button className="icon-btn profile-btn" onClick={goToProfile} aria-label="Go to Profile"><FaUser /> {user.displayName || "Profile"}</button> : 
+            <button className="icon-btn user-btn" onClick={loginOnClick} aria-label="Log In"><FaUser/> Login</button>
           }
         </div>
 
         {/* Mobile Hamburger Button */}
-        <button className="mobile-menu-btn" onClick={toggleMenu}>
+        <button 
+          className="mobile-menu-btn" 
+          onClick={toggleMenu}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-dropdown"
+          aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+        >
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
       {/* MOBILE DROPDOWN MENU */}
-      <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-        <form className="mobile-search-container" onSubmit={handleSearch}>
+      <div id="mobile-dropdown" className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
+        <form className="mobile-search-container" onSubmit={handleSearch} role="search">
           <input 
             type="text" 
             placeholder="Search movies..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
+            aria-label="Search for a movie"
           />
-          <button type="submit" className="icon-btn search-btn"><FaSearch/></button>
+          <button type="submit" className="icon-btn search-btn" aria-label="Submit search"><FaSearch/></button>
         </form>
 
         <ul className="mobile-navbar-links">
@@ -97,8 +105,8 @@ export default function Navbar() {
 
         <div className="mobile-profile-section">
           {user ? 
-            <button className="icon-btn profile-btn" onClick={goToProfile}><FaUser /> {user.displayName || "Profile"}</button> : 
-            <button className="icon-btn user-btn" onClick={loginOnClick}><FaUser/> Login</button>
+            <button className="icon-btn profile-btn" onClick={goToProfile} aria-label="Go to Profile"><FaUser /> {user.displayName || "Profile"}</button> : 
+            <button className="icon-btn user-btn" onClick={loginOnClick} aria-label="Log In"><FaUser/> Login</button>
           }
         </div>
       </div>
