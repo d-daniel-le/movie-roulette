@@ -49,7 +49,6 @@ export default function Trending() {
     const moviesRef = trendingMoviesRef.current;
     const peopleRef = trendingPeopleRef.current;
 
-    // We use { passive: false } so preventDefault() is allowed to block the page scroll
     if (moviesRef) moviesRef.addEventListener('wheel', handleWheelScroll, { passive: false });
     if (peopleRef) peopleRef.addEventListener('wheel', handleWheelScroll, { passive: false });
 
@@ -78,7 +77,7 @@ export default function Trending() {
     }
   };
 
-  if (loading) return <p>Loading trending content...</p>;
+  if (loading) return <p aria-live="polite">Loading trending content...</p>;
 
   const featuredMovie = movies[0];
 
@@ -87,7 +86,7 @@ export default function Trending() {
     <div className="trending-page-container">
 
       {featuredMovie && (
-        <div className="featured-movie" style={{
+        <div className="featured-movie" role="region" aria-label="Featured Trending Movie" style={{
           backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 60%, #111 100%), url(https://image.tmdb.org/t/p/original${featuredMovie.backdrop_path})`,
         }}>
           <h1 className="h1-trending">{featuredMovie.title}</h1>
@@ -95,16 +94,31 @@ export default function Trending() {
       )}
       
       <h2>Trending Movies</h2>
-      <div className="movie-scroller" ref={trendingMoviesRef}>
+      {/* A11Y UPDATE: Added a11y roles to the scroller */}
+      <div className="movie-scroller" ref={trendingMoviesRef} role="region" aria-label="Trending Movies Carousel" tabIndex="0">
         {movies.map((movie) => (
-          <div className="poster-placeholder-trending" key={movie.id} onClick={() => {
-            setSelectedMovie(movie);
-            fetchMovieDetails(movie.id);
-          }}>
+          <div 
+            className="poster-placeholder-trending" 
+            key={movie.id} 
+            role="button" 
+            tabIndex="0"
+            aria-label={`View details for ${movie.title}`}
+            onClick={() => {
+              setSelectedMovie(movie);
+              fetchMovieDetails(movie.id);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedMovie(movie);
+                fetchMovieDetails(movie.id);
+              }
+            }}
+          >
             <img 
               className='cardimg'
               src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-              alt={movie.title} 
+              alt={`Poster of ${movie.title}`} 
             />
             <p><strong>{movie.title}</strong></p>
           </div>
@@ -112,13 +126,18 @@ export default function Trending() {
       </div>
 
       <h2>Trending People</h2>
-      <div className="movie-scroller" ref={trendingPeopleRef}>
+      <div className="movie-scroller" ref={trendingPeopleRef} role="region" aria-label="Trending People Carousel" tabIndex="0">
         {people.map((person) => (
-          <div className="poster-placeholder-trending" key={person.id}>
+          <div 
+            className="poster-placeholder-trending" 
+            key={person.id}
+            role="article"
+            aria-label={`Trending person: ${person.name}`}
+          >
             <img 
               className='cardimg'
               src={person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'https://placehold.co/200x300?text=No+Image'}
-              alt={person.name} 
+              alt={`Profile of ${person.name}`} 
             />
             <p><strong>{person.name}</strong></p>
           </div>
@@ -126,23 +145,35 @@ export default function Trending() {
       </div>
 
       {selectedMovie && (
-        <div className="modal">
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
           <div className="modal-content">
-            <span className="close" onClick={() => {
-              setSelectedMovie(null);
-              setMovieDetails(null);
-            }}>&times;</span>
+            <span 
+              className="close" 
+              role="button" 
+              tabIndex="0" 
+              aria-label="Close dialog"
+              onClick={() => {
+                setSelectedMovie(null);
+                setMovieDetails(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedMovie(null);
+                  setMovieDetails(null);
+                }
+              }}
+            >&times;</span>
             <div className="modal-movie-details">
               <img 
                 src={selectedMovie.poster_path
                   ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
                   : 'https://placehold.co/500x750?text=No+Poster'}
                 onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                alt={selectedMovie.title}
+                alt={`Poster of ${selectedMovie.title}`}
                 className="modal-movie-poster"
               />
               <div className="modal-movie-info">
-                <h2>{selectedMovie.title}</h2>
+                <h2 id="modal-title">{selectedMovie.title}</h2>
                 <div className="movie-details">
                   <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
                   <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
