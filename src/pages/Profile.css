@@ -67,6 +67,9 @@ hr{
     padding: 25px;
     border-radius: 25px;
     background-color: #1E1C1C;
+    min-width: 0;
+    height: 100vh;
+    box-sizing: border-box;
 }
 
 /* Profile Name */
@@ -197,43 +200,29 @@ dd{
 
 /* Watched History - Movie tiles */
 
-.profile-watched-content{
-    width: 1400px;
+.profile-watched-content[hidden]{
+    display: none;
 }
 
-.profile-watched-content .poster-placeholder-trending{
+.profile-watched-content{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-watched-content .poster-placeholder-history{
     flex: 0 0 auto;
 }
 
-.poster-placeholder-trending {
+.poster-placeholder-history {
     margin-top: 1rem;
     transition: transform 0.2s;
-    width: 250px;
+    width: 150px;
   }
   
-  .poster-placeholder-trending:hover {
+  .poster-placeholder-history:hover {
     transform: scale(1.05);
-  }
-  
-  .featured-movie {
-    background-size: cover;
-    background-position: center top;
-    position: relative;
-    height: 60vh;
-    display: 'flex';
-    align-items: flex;
-  }
-  
-  .h1-trending {
-    font-size: 3rem;
-    margin-bottom: 2rem;
-  }
-  
-  .movie-scroller {
-    display: flex; 
-    overflow-x: auto; 
-    gap: 15px; 
-    overflow-y: hidden;
   }
   
   .cardimg {
@@ -241,35 +230,48 @@ dd{
   }
 
   /* ================ SCROLLER SETTINGS ================ */
-.profile-watched-content .movie-scroller{
+.profile-watched-content .movie-scroller-history{
     width: 100%;
     max-width: 100%;
 }
 
-.movie-scroller {
+.movie-scroller-history .spin-date{
+    width: 250px;
+    flex: 0 0 250px;
+}
+
+.movie-scroller-history {
     display: flex;
     overflow-x: auto;
-    gap: 15px;
+    gap: 100px;
     overflow-y: hidden;
   }
+
+  /* Vertical Scroll */
+
+  .profile-watched-content .spin-date-container{
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
   
-  .movie-scroller::-webkit-scrollbar {
+  /* .movie-scroller-history::-webkit-scrollbar {
     height: 1.3rem;
   }
   
-  .movie-scroller::-webkit-scrollbar-track {
+  .movie-scroller-history::-webkit-scrollbar-track {
     border-radius: 6px;
   }
-  .movie-scroller::-webkit-scrollbar-thumb {
+  .movie-scroller-history::-webkit-scrollbar-thumb {
     background-color: transparent;
     border-radius: 6px;
   }
   
-  .movie-scroller:hover::-webkit-scrollbar-track {
+  .movie-scroller-history:hover::-webkit-scrollbar-track {
     background-color: rgba(134, 134, 134, 0.1);
   }
   
-  .movie-scroller:hover::-webkit-scrollbar-thumb {
+  .movie-scroller-history:hover::-webkit-scrollbar-thumb {
     background-color: hsla(0, 0%, 27%, 0.2);
-  }
+  } */
   

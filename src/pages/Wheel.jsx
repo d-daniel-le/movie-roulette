@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { AuthContext } from '../components/AuthProvider';
 
 import './Wheel.css';
@@ -170,8 +170,12 @@ export default function Wheel() {
           const winningMovie = top10[winningIndex];
           
           addDoc(collection(db, "userinfo", user.uid , "history"), {
-            movie : winningMovie
-          });
+            movie : winningMovie,
+            retrievedDate: serverTimestamp()
+          })
+          const imageUrl = winningMovie.poster_path 
+            ? `https://image.tmdb.org/t/p/w500${winningMovie.poster_path}` 
+            : 'placeholder.jpg';
 
           setWinner({
             title: winningMovie.title,
