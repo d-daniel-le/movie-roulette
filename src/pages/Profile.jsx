@@ -25,6 +25,9 @@ function Profile(){
     const [hiddenUsernameErrorMessage, setHiddenUsernameErrorMessage] = useState(true)
     const [chosenMovie, setChosenMovie] = useState([])
 
+    // Initialize Selected Movies Ordered by Date object 
+    const [orderedByDate, setOrderedByDate] = useState({})
+
     // Initialize Navigate
     const navigate = useNavigate()
 
@@ -179,6 +182,7 @@ function Profile(){
         }
     }
 
+    // Sign Out User - click function
     const signOutUser = async () =>{
         try{
             await signOut(auth)
@@ -188,6 +192,7 @@ function Profile(){
             console.log(error.code)
         }
     }
+
 
     useEffect(()=>{
         if (user){
@@ -202,21 +207,43 @@ function Profile(){
 
         const readDoc = async ()=>{
             const getDocuments = await getDocs(collection(db, "userinfo", user.uid, "history"))
-            const movies = getDocuments.docs.map((document) => {return document.data().movie})
-            setChosenMovie(movies)
+            const movies = getDocuments.docs.map((document) => {
+                const documentData = document.data()
 
+                return{
+                    ...documentData.movie,
+                    retrievedDate: documentData.retrievedDate?.toDate()
+                }
+            })
+            setChosenMovie(movies)
         }
 
         if(user){
             readDoc()
         }
         
-
     },[user])
 
+    useEffect( () => {
+        // Order Spinned Movie By Date
+
+        const movieGroup = {}
+
+        chosenMovie.forEach((movie)=>{
+            const date = movie.retrievedDate ? movie.retrievedDate.toDateString() : "Previous Spinned"
+    
+            if (!movieGroup[date]){
+                movieGroup[date] = []
+            }
+
+            movieGroup[date].push(movie)
+    
+        })
+
+        setOrderedByDate(movieGroup)
 
 
-
+    }, [chosenMovie])
 
     if (!user){
         return <p>Loading User...</p>
@@ -236,7 +263,7 @@ function Profile(){
                 <div className="profile-sidenav-btn">
                     
                     <button className="my-information" onClick={setMyInfoHidden}>My Information</button>
-                    <button className="watched-history" onClick={setWatchedContentHidden}>Watched History</button>
+                    <button className="watched-history" onClick={setWatchedContentHidden}>Spin History</button>
 
                     <hr />
                     <button className="profile-logout-btn" onClick={signOutUser}>Logout</button>
@@ -305,20 +332,34 @@ function Profile(){
                 <div className="profile-watched-content" hidden={hiddenWatchedContent}>
 
                     <div className="profile-watched-history">
-                        <h3>Spinned History</h3>
+                        <h3>Spin History</h3>
                     </div>
 
-                    <div className="movie-scroller">
-                        {chosenMovie.map((movie) => (
-                        <div className="poster-placeholder-trending" key={movie.id}>
-                            <img 
-                            className='cardimg'
-                            src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-                            alt={movie.title} 
-                            />
-                            <p><strong>{movie.title}</strong></p>
-                        </div>
-                        ))}
+                    <div className="spin-date-container">
+                        {
+                            Object.entries(orderedByDate).map(([date, movies])=>(
+                                <div className="movie-scroller-history" key={date}>
+
+                                    <div className="spin-date">
+                                        <p>{date}</p>
+                                    </div>
+
+                                    {
+                                        movies.map((movie) =>(
+                                            <div className="poster-placeholder-history" key={movie.id}>
+                                                <img 
+                                                className='cardimg'
+                                                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
+                                                alt={movie.title} 
+                                                />
+                                                <p><strong>{movie.title}</strong></p>
+                                            </div>
+                                        ))
+                                    }
+                                        
+                                </div>
+                            ))
+                        }
                     </div>
 
                 </div>
