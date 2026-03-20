@@ -337,7 +337,15 @@ function Profile(){
 
                     <div className="spin-date-container">
                         {
-                            Object.entries(orderedByDate).map(([date, movies])=>(
+                            Object.entries(orderedByDate).sort(([firstDate], [secondDate])=>{
+                                if (firstDate === "Previous Spinned"){
+                                    return 1
+                                }
+                                if (secondDate === "Previous Spinned"){
+                                    return -1
+                                }
+                                return new Date(secondDate) - new Date(firstDate)
+                            }).map(([date, movies])=>(
                                 <div className="movie-scroller-history" key={date}>
 
                                     <div className="spin-date">
