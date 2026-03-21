@@ -96,7 +96,7 @@ export default function Trending() {
       <h2>Trending Movies</h2>
       {/* A11Y UPDATE: Added a11y roles to the scroller */}
       <div className="movie-scroller" ref={trendingMoviesRef} role="region" aria-label="Trending Movies Carousel" tabIndex="0">
-        {movies.map((movie) => (
+        {movies.filter(movie => movie.poster_path).map((movie) => (
           <div 
             className="poster-placeholder-trending" 
             key={movie.id} 
@@ -127,7 +127,7 @@ export default function Trending() {
 
       <h2>Trending People</h2>
       <div className="movie-scroller" ref={trendingPeopleRef} role="region" aria-label="Trending People Carousel" tabIndex="0">
-        {people.map((person) => (
+        {people.filter(person => person.profile_path).map((person) => (
           <div 
             className="poster-placeholder-trending" 
             key={person.id}
@@ -136,7 +136,7 @@ export default function Trending() {
           >
             <img 
               className='cardimg'
-              src={person.profile_path ? `https://image.tmdb.org/t/p/w200${person.profile_path}` : 'https://placehold.co/200x300?text=No+Image'}
+              src={`https://image.tmdb.org/t/p/w200${person.profile_path}`}
               alt={`Profile of ${person.name}`} 
             />
             <p><strong>{person.name}</strong></p>
