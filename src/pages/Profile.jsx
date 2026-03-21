@@ -352,18 +352,21 @@ function Profile(){
                                         <p>{date}</p>
                                     </div>
 
-                                    {
-                                        movies.map((movie) =>(
-                                            <div className="poster-placeholder-history" key={movie.id}>
-                                                <img 
-                                                className='cardimg'
-                                                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-                                                alt={movie.title} 
-                                                />
-                                                <p><strong>{movie.title}</strong></p>
-                                            </div>
-                                        ))
-                                    }
+                                    {/* CHANGED: Wrapped the mapped movies in a new 'history-movies-row' div so the date above isn't forced into the horizontal scroll row */}
+                                    <div className="history-movies-row">
+                                        {
+                                            movies.map((movie) =>(
+                                                <div className="poster-placeholder-history" key={movie.id}>
+                                                    <img 
+                                                    className='cardimg'
+                                                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
+                                                    alt={movie.title} 
+                                                    />
+                                                    <p><strong>{movie.title}</strong></p>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
                                         
                                 </div>
                             ))

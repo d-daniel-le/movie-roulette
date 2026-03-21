@@ -11,7 +11,11 @@
 
 .profile-sidenav{
     background-color: #1E1C1C;
-    height: 100vh;
+    /* CHANGED: Swapped 100vh for a calculated height to account for the navbar, stopping it from pushing the logout button off-screen */
+    height: calc(100vh - 120px);
+    /* ADDED: Sticky positioning so the sidebar stays locked in view if they scroll their history list */
+    position: sticky;
+    top: 100px;
     border-radius: 25px;
     padding: 25px;
     box-sizing: border-box;
@@ -68,7 +72,9 @@ hr{
     border-radius: 25px;
     background-color: #1E1C1C;
     min-width: 0;
-    height: 100vh;
+    /* CHANGED: Adjusted to min-height so it naturally expands if the user's data list is long, instead of hard-stopping at 100vh */
+    min-height: calc(100vh - 120px);
+    height: auto;
     box-sizing: border-box;
 }
 
@@ -211,6 +217,12 @@ dd{
     height: 100%;
 }
 
+.profile-watched-history h3 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
 .profile-watched-content .poster-placeholder-history{
     flex: 0 0 auto;
 }
@@ -233,19 +245,35 @@ dd{
 .profile-watched-content .movie-scroller-history{
     width: 100%;
     max-width: 100%;
+    /* CHANGED: Switched to flex column so the date stacks neatly on top of the movies */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    margin-bottom: 40px; 
 }
 
 .movie-scroller-history .spin-date{
-    width: 250px;
-    flex: 0 0 250px;
+    /* CHANGED: Allowed the date container to take full width above the movie posters */
+    width: 100%;
+    flex: 1 1 100%;
 }
 
-.movie-scroller-history {
+.spin-date p {
+    /* ADDED: Cleaned up the date text to look like a solid divider line */
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+}
+
+.history-movies-row {
     display: flex;
     overflow-x: auto;
-    gap: 100px;
+    gap: 25px;
     overflow-y: hidden;
-  }
+    padding-bottom: 15px;
+}
 
   /* Vertical Scroll */
 
@@ -275,3 +303,59 @@ dd{
     background-color: hsla(0, 0%, 27%, 0.2);
   } */
   
+
+/* =============== MOBILE RESPONSIVENESS =============== */
+@media (max-width: 768px) {
+    .profile-nav {
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .profile-sidenav {
+        height: auto;
+        position: static;
+        padding: 1.5rem;
+    }
+
+    .profile-sidenav-btn {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .profile-sidenav-btn button {
+        flex: 1 1 45%;
+        margin-bottom: 0;
+    }
+
+    .profile-sidenav-btn .profile-logout-btn {
+        flex: 1 1 100%;
+    }
+
+    hr {
+        display: none;
+    }
+
+    .profile-content {
+        min-height: auto;
+        padding: 1.5rem;
+    }
+
+    .user-account-name, .user-account-email, .user-account-date-created {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    dt {
+        width: auto;
+    }
+
+    .user-account-information button, .save-cancel-edit {
+        width: 100%;
+    }
+
+}
