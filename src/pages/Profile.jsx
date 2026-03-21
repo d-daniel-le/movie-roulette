@@ -1,5 +1,5 @@
 import { AuthContext } from "../components/AuthProvider";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import "./Profile.css"
 import { EmailAuthProvider, reauthenticateWithCredential, signOut, updateEmail, updateProfile } from "firebase/auth";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
@@ -24,7 +24,31 @@ function Profile(){
     const [usernameErrorMessage, setUsernameErrorMessage] = useState("")
     const [hiddenUsernameErrorMessage, setHiddenUsernameErrorMessage] = useState(true)
     const [chosenMovie, setChosenMovie] = useState([])
+    const [selectedMovie, setSelectedMovie] = useState(null);
+    const [movieDetails, setMovieDetails] = useState(null);
 
+    const profileMoviesRef = useRef(null);
+
+    // 2. Add the Mouse Wheel Scroll Effect
+      useEffect(() => {
+        const handleWheelScroll = (e) => {
+          // If moving the scroll wheel vertically...
+          if (e.deltaY !== 0) {
+            e.preventDefault(); // Stop the whole page from scrolling down
+            e.currentTarget.scrollLeft += e.deltaY; // Move the carousel sideways instead
+          }
+        };
+    
+        const movieHistoryRef = profileMoviesRef.current;
+    
+        if (movieHistoryRef) movieHistoryRef.addEventListener('wheel', handleWheelScroll, { passive: false });
+    
+        return () => {
+          if (movieHistoryRef) movieHistoryRef.removeEventListener('wheel', handleWheelScroll);
+        };
+      }, );
+    
+    
     // Initialize Selected Movies Ordered by Date object 
     const [orderedByDate, setOrderedByDate] = useState({})
 
@@ -245,6 +269,25 @@ function Profile(){
 
     }, [chosenMovie])
 
+    // Function to fetch detailed movie information
+    const fetchMovieDetails = async (movieId) => {
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+            }
+        };
+
+        try {
+            const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options);
+            const data = await response.json();
+            setMovieDetails(data);
+        } catch (error) {
+            console.error('Error fetching movie details:', error);
+        }
+    };
+
     if (!user){
         return <p>Loading User...</p>
     }
@@ -353,10 +396,28 @@ function Profile(){
                                     </div>
 
                                     {/* CHANGED: Wrapped the mapped movies in a new 'history-movies-row' div so the date above isn't forced into the horizontal scroll row */}
-                                    <div className="history-movies-row">
+                                    <div className="history-movies-row" ref={profileMoviesRef}>
                                         {
                                             movies.map((movie) =>(
-                                                <div className="poster-placeholder-history" key={movie.id}>
+                                                <div 
+                                                    className="poster-placeholder-history" 
+                                                    key={movie.id}
+                                                    role="button" 
+                                                    tabIndex="0"
+                                                    aria-label={`View details for ${movie.title}`}
+                                                    onClick={() => {
+                                                        setSelectedMovie(movie);
+                                                        fetchMovieDetails(movie.id);
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault();
+                                                            setSelectedMovie(movie);
+                                                            fetchMovieDetails(movie.id);
+                                                        }
+                                                    }}
+                                                    
+                                                >
                                                     <img 
                                                     className='cardimg'
                                                     src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
@@ -371,6 +432,47 @@ function Profile(){
                                 </div>
                             ))
                         }
+                        {selectedMovie && (
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+          <div className="modal-content">
+            <span 
+              className="close" 
+              role="button" 
+              tabIndex="0" 
+              aria-label="Close dialog"
+              onClick={() => {
+                setSelectedMovie(null);
+                setMovieDetails(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedMovie(null);
+                  setMovieDetails(null);
+                }
+              }}
+            >&times;</span>
+            <div className="modal-movie-details">
+              <img 
+                src={selectedMovie.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
+                  : 'https://placehold.co/500x750?text=No+Poster'}
+                onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                alt={`Poster of ${selectedMovie.title}`}
+                className="modal-movie-poster"
+              />
+              <div className="modal-movie-info">
+                <h2 id="modal-title">{selectedMovie.title}</h2>
+                <div className="movie-details">
+                  <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
+                  <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
+                  <p className="movie-runtime"><strong>Runtime:</strong> {movieDetails?.runtime ? `${movieDetails.runtime} minutes` : 'Loading...'}</p>
+                </div>
+                <p className="movie-overview">{selectedMovie.overview || 'No description available.'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
                     </div>
 
                 </div>

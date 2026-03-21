@@ -113,7 +113,7 @@ export default function Home() {
             {loading ? (
               <p aria-live="polite">Loading movies...</p>
             ) : (
-              movies.map((movie) => (
+              movies.filter(movie => movie.poster_path).map((movie) => (
                 <div 
                   key={movie.id} 
                   className="movie-card" 
@@ -133,10 +133,7 @@ export default function Home() {
                   }}
                 >
                   <img 
-                    src={movie.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                      : 'https://placehold.co/500x750?text=No+Poster'}
-                    onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                     alt={`Poster of ${movie.title}`}
                     className="movie-poster"
                   />
@@ -163,7 +160,7 @@ export default function Home() {
             {COSLoading ? (
               <p aria-live="polite">Loading movies...</p>
             ) : (
-              COSmovies.map((upcomingMovie) => (
+              COSmovies.filter(upcomingMovie => upcomingMovie.poster_path).map((upcomingMovie) => (
                 <div 
                   key={upcomingMovie.id} 
                   className="movie-card" 
@@ -183,10 +180,7 @@ export default function Home() {
                   }}
                 >
                   <img 
-                    src={upcomingMovie.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${upcomingMovie.poster_path}`
-                      : 'https://placehold.co/500x750?text=No+Poster'} 
-                    onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                    src={`https://image.tmdb.org/t/p/w500${upcomingMovie.poster_path}`}
                     alt={`Poster of ${upcomingMovie.title}`}
                     className="movie-poster"
                   />
@@ -223,10 +217,7 @@ export default function Home() {
             >&times;</span>
             <div className="modal-movie-details">
               <img 
-                src={selectedMovie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
-                  : 'https://placehold.co/500x750?text=No+Poster'}
-                onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
                 alt={`Poster of ${selectedMovie.title}`}
                 className="modal-movie-poster"
               />

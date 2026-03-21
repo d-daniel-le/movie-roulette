@@ -68,7 +68,7 @@ hr{
 
 /* Profile content */
 .profile-content {
-    padding: 25px;
+    padding: 1rem;
     border-radius: 25px;
     background-color: #1E1C1C;
     min-width: 0;
@@ -270,9 +270,29 @@ dd{
 .history-movies-row {
     display: flex;
     overflow-x: auto;
-    gap: 25px;
+    gap: 4rem;
     overflow-y: hidden;
     padding-bottom: 15px;
+}
+
+.history-movies-row::-webkit-scrollbar {
+    height: 1.3rem;
+}
+
+.history-movies-row::-webkit-scrollbar-track {
+    border-radius: 6px;
+}
+.history-movies-row::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+}
+
+.history-movies-row:hover::-webkit-scrollbar-track {
+    background-color: rgba(134, 134, 134, 0.1);
+}
+
+.history-movies-row:hover::-webkit-scrollbar-thumb {
+    background-color: hsla(0, 0%, 27%, 0.2);
 }
 
   /* Vertical Scroll */
@@ -283,7 +303,7 @@ dd{
     overflow-y: auto;
   }
   
-  /* .movie-scroller-history::-webkit-scrollbar {
+  .movie-scroller-history::-webkit-scrollbar {
     height: 1.3rem;
   }
   
@@ -301,7 +321,7 @@ dd{
   
   .movie-scroller-history:hover::-webkit-scrollbar-thumb {
     background-color: hsla(0, 0%, 27%, 0.2);
-  } */
+  }
   
 
 /* =============== MOBILE RESPONSIVENESS =============== */
