@@ -14,8 +14,9 @@
   background-position: center top;
   position: relative;
   height: 60vh;
-  display: 'flex';
-  align-items: flex;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .h1-trending {

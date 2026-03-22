@@ -1,0 +1,105 @@
+.search-result-outer-container{
+    display: flex;
+    justify-content: center;
+}
+
+.search-result-container{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    width: 750px;
+    /* border: .5px solid #ffffff; */
+}
+.result-title{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    width: 100%;
+}
+
+.search-result-input{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    border-bottom: .5px solid #ffffff;
+
+}
+
+.search-result-input input{
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    /* border: .5px solid #ffffff; */
+    height: 25px;
+    padding: 10px;
+    width: 100%;
+}
+
+/* ===== DESKTOP movie SECTION ====== */
+.movie-results-celebration-section {
+    text-align: center;
+    border-top: 1px solid #1f2937;
+}
+
+.movie-results-card {
+display: flex;
+gap: 2rem;
+max-width: 800px;
+margin: 2rem auto 0;
+text-align: left;
+background-color: #111827;
+padding: 2rem;
+border-radius: 12px;
+align-items: flex-start; 
+}
+
+.movie-results-card:hover{
+    transform: scale(1.05);
+}
+
+.movie-results-card img {
+width: 200px;
+height: auto;
+flex-shrink: 0;
+border-radius: 8px;
+box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* ===== STREAMING PROVIDER LOGOS ===== */
+.streaming-providers {
+margin-top: 1.5rem;
+}
+
+.streaming-providers h4 {
+font-size: 1.1rem;
+color: #9ca3af; 
+margin-bottom: 0.8rem;
+}
+
+.provider-logos {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+}
+
+.movie-results-details .provider-logos {
+width: 40px;
+height: 40px;
+min-width: 40px; 
+border-radius: 8px; 
+box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+transition: transform 0.2s ease;
+object-fit: contain; 
+}
+
+.movie-results-details .provider-logos:hover {
+transform: scale(1.15);
+}
+
+.no-providers-text {
+font-size: 0.95rem;
+color: #6b7280;
+font-style: italic;
+}
