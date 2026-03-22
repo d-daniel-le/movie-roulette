@@ -28,7 +28,7 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/result?q=${encodeURIComponent(searchQuery)}`)
+    navigate(`/results?q=${encodeURIComponent(searchQuery)}`)
     console.log("Searching TMDB for:", searchQuery); 
     setIsMobileMenuOpen(false);
   }
