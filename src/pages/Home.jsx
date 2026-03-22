@@ -7,6 +7,7 @@ export default function Home() {
   const [COSmovies, setCOSMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [movieDetails, setMovieDetails] = useState(null);
+  const [isUpcoming, setIsUpcoming] = useState(false);
 
   // 1. Create Refs for the scrollable containers
   const popularScrollRef = useRef(null);
@@ -31,15 +32,16 @@ export default function Home() {
       const popularData = await popularRes.json();
       const upcomingData = await upcomingRes.json();
 
-      // Filter out movies that haven't been released yet
+      // Filter out movies that haven't been released yet and adult movies
       const releasedMovies = popularData.results.filter(movie => 
-        !movie.release_date || new Date(movie.release_date) <= new Date(today)
+        (!movie.release_date || new Date(movie.release_date) <= new Date(today)) &&
+        !movie.adult
       );
       const popularMovies = releasedMovies || [];
       const popularIds = new Set(popularMovies.map((m) => m.id));
 
       setMovies(popularMovies);
-      setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id)) || []);
+      setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id) && !m.adult) || []);
 
       setLoading(false);
       setCOSLoading(false);
@@ -47,6 +49,29 @@ export default function Home() {
 
     fetchMovies();
   }, []);
+
+  // Helper to map provider names to search URLs for selected movie
+  const getProviderUrl = (providerName, movieTitle) => {
+    const q = encodeURIComponent(movieTitle);
+    const knownProviders = {
+      'Netflix': `https://www.netflix.com/search?q=${q}`,
+      'Hulu': `https://www.hulu.com/search?q=${q}`,
+      'Prime Video': `https://www.amazon.com/s?k=${q}`,
+      'Disney Plus': `https://www.disneyplus.com/search?query=${q}`,
+      'Disney+': `https://www.disneyplus.com/search?query=${q}`,
+      'Apple TV+': `https://tv.apple.com/search?q=${q}`,
+      'Peacock': `https://www.peacocktv.com/search?q=${q}`,
+      'YouTube': `https://www.youtube.com/results?search_query=${q}`,
+      'Paramount Plus': `https://www.paramountplus.com/search?query=${q}`,
+      'Paramount+': `https://www.paramountplus.com/search?query=${q}`,
+      'Sky Go': `https://www.sky.com/watch/search?q=${q}`,
+      'Crave': `https://www.crave.ca/search?q=${q}`,
+    };
+
+    if (knownProviders[providerName]) return knownProviders[providerName];
+
+    return `https://www.google.com/search?q=${encodeURIComponent(`${movieTitle} ${providerName}`)}`;
+  };
 
   // Function to fetch detailed movie information
   const fetchMovieDetails = async (movieId) => {
@@ -59,9 +84,18 @@ export default function Home() {
     };
 
     try {
-      const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options);
-      const data = await response.json();
-      setMovieDetails(data);
+      const [movieRes, providersRes] = await Promise.all([
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options),
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}/watch/providers?language=en-US`, options)
+      ]);
+      
+      const movieData = await movieRes.json();
+      const providersData = await providersRes.json();
+      
+      setMovieDetails({
+        ...movieData,
+        watchProviders: providersData.results?.US || {}
+      });
     } catch (error) {
       console.error('Error fetching movie details:', error);
     }
@@ -122,12 +156,14 @@ export default function Home() {
                   aria-label={`View details for ${movie.title}`}
                   onClick={() => {
                     setSelectedMovie(movie);
+                    setIsUpcoming(false);
                     fetchMovieDetails(movie.id);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       setSelectedMovie(movie);
+                      setIsUpcoming(false);
                       fetchMovieDetails(movie.id);
                     }
                   }}
@@ -169,12 +205,14 @@ export default function Home() {
                   aria-label={`View details for ${upcomingMovie.title}`}
                   onClick={() => {
                     setSelectedMovie(upcomingMovie);
+                    setIsUpcoming(true);
                     fetchMovieDetails(upcomingMovie.id);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       setSelectedMovie(upcomingMovie);
+                      setIsUpcoming(true);
                       fetchMovieDetails(upcomingMovie.id);
                     }
                   }}
@@ -207,11 +245,13 @@ export default function Home() {
               onClick={() => {
                 setSelectedMovie(null);
                 setMovieDetails(null);
+                setIsUpcoming(false);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   setSelectedMovie(null);
                   setMovieDetails(null);
+                  setIsUpcoming(false);
                 }
               }}
             >&times;</span>
@@ -229,6 +269,67 @@ export default function Home() {
                   <p className="movie-runtime"><strong>Runtime:</strong> {movieDetails?.runtime ? `${movieDetails.runtime} minutes` : 'Loading...'}</p>
                 </div>
                 <p className="movie-overview">{selectedMovie.overview || 'No description available.'}</p>
+
+                {/* Watch Providers Section */}
+                {!isUpcoming && movieDetails?.watchProviders && (
+                  <div className="watch-providers">
+                    <h3>Where to Watch</h3>
+                    {movieDetails.watchProviders.flatrate && (
+                      <div className="provider-group">
+                        <strong>Stream</strong>
+                        <div className="provider-list">
+                          {movieDetails.watchProviders.flatrate
+                            .map((provider) => (
+                            <a key={provider.provider_id} className="provider-item" href={getProviderUrl(provider.provider_name, selectedMovie?.title || movieDetails?.title || '')} target="_blank" rel="noopener noreferrer" title={provider.provider_name}>
+                              {provider.logo_path && (
+                                <img 
+                                  src={`https://image.tmdb.org/t/p/original${provider.logo_path}`} 
+                                  alt={provider.provider_name}
+                                />
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {movieDetails.watchProviders.rent && (
+                      <div className="provider-group">
+                        <strong>Rent</strong>
+                        <div className="provider-list">
+                          {movieDetails.watchProviders.rent
+                            .map((provider) => (
+                            <a key={provider.provider_id} className="provider-item" href={getProviderUrl(provider.provider_name, selectedMovie?.title || movieDetails?.title || '')} target="_blank" rel="noopener noreferrer" title={provider.provider_name}>
+                              {provider.logo_path && (
+                                <img 
+                                  src={`https://image.tmdb.org/t/p/original${provider.logo_path}`} 
+                                  alt={provider.provider_name}
+                                />
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {movieDetails.watchProviders.buy && (
+                      <div className="provider-group">
+                        <strong>Buy</strong>
+                        <div className="provider-list">
+                          {movieDetails.watchProviders.buy
+                            .map((provider) => (
+                            <a key={provider.provider_id} className="provider-item" href={getProviderUrl(provider.provider_name, selectedMovie?.title || movieDetails?.title || '')} target="_blank" rel="noopener noreferrer" title={provider.provider_name}>
+                              {provider.logo_path && (
+                                <img 
+                                  src={`https://image.tmdb.org/t/p/original${provider.logo_path}`} 
+                                  alt={provider.provider_name}
+                                />
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

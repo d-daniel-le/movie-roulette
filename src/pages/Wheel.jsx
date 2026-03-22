@@ -113,8 +113,8 @@ export default function Wheel() {
             finalData = await pageResponse.json();
         }
 
-        // API UPDATE: Filter out any movies missing a poster BEFORE shuffling
-        const validMovies = finalData.results.filter(movie => movie.poster_path);
+        // API UPDATE: Filter out any movies missing a poster and adult movies BEFORE shuffling
+        const validMovies = finalData.results.filter(movie => movie.poster_path && !movie.adult);
 
         // API UPDATE: Safety check to ensure we still have 10 movies after filtering
         if (validMovies.length < 10) {

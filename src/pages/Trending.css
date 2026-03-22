@@ -85,3 +85,44 @@
     font-size: 0.9rem;
   }
 }
+
+/* ===== PERSON MODAL STYLES ===== */
+.loading-details {
+  text-align: center;
+  padding: 2rem;
+  color: #ffffff;
+}
+
+.person-biography {
+  margin-top: 1rem;
+}
+
+.person-biography h3 {
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.person-known-for {
+  margin-top: 1.5rem;
+}
+
+.person-known-for h3 {
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+.known-for-list {
+  text-align: left;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.known-for-item {
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.known-for-item:last-child {
+  border-bottom: none;
+}
