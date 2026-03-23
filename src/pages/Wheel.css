@@ -196,6 +196,30 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS FOR WHEEL  ===== */
+@media (max-width: 1024px) {
+  .wheel-layout-grid{
+    gap: 2rem;
+  }
+
+  .wheel-display-area{
+    padding: 0;
+  }
+
+  .wheel-pointer{
+    top: 41%;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 27.5px solid var(--accent-blue);
+  }
+
+  .physical-wheel{
+    width: 550px;
+    height: 550px;
+  }
+}
+
+
+
 @media (max-width: 768px) {
   
   .wheel-layout-grid {
@@ -223,6 +247,7 @@
   }
 
   .wheel-pointer {
+    top: 50%;
     border-left: 15px solid transparent;
     border-right: 15px solid transparent;
     border-bottom: 28px solid var(--accent-blue);
