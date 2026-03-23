@@ -73,8 +73,10 @@ hr{
     background-color: #1E1C1C;
     min-width: 0;
     /* CHANGED: Adjusted to min-height so it naturally expands if the user's data list is long, instead of hard-stopping at 100vh */
-    min-height: calc(100vh - 120px);
-    height: auto;
+    /* Updated to set fixed height for the profile content since it looks uneven as opposed to profile side nav */
+    /* min-height: calc(100vh - 120px);
+    height: auto; */
+    height: calc(100vh - 120px);
     box-sizing: border-box;
 }
 
@@ -298,6 +300,7 @@ dd{
   /* Vertical Scroll */
 
   .profile-watched-content .spin-date-container{
+    border-radius: 10px;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
