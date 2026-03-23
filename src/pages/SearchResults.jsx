@@ -151,8 +151,8 @@ function SearchResults (){
 
                 {
                     viewMovieDetail && (
-                        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-                            <div className="modal-content">
+                        <div className="modal-results" role="dialog" aria-modal="true" aria-labelledby="modal-results-title">
+                            <div className="modal-results-content">
                                 <span 
                                 className="close" 
                                 role="button" 
@@ -173,17 +173,17 @@ function SearchResults (){
                                     }
                                 }}
                                 >&times;</span>
-                                <div className="modal-movie-details">
+                                <div className="modal-results-movie-details">
                                     <img 
                                         src={movieDetail.poster_path
                                         ? `https://image.tmdb.org/t/p/w500${movieDetail.poster_path}`
                                         : 'https://placehold.co/500x750?text=No+Poster'}
                                         onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
                                         alt={`Poster of ${movieDetail.title}`}
-                                        className="modal-movie-poster"
+                                        className="modal-results-movie-poster"
                                     />
-                                    <div className="modal-movie-info">
-                                        <h2 id="modal-title">{movieDetail.title}</h2>
+                                    <div className="modal-results-movie-info">
+                                        <h2 id="modal-results-title">{movieDetail.title}</h2>
                                         <div className="movie-details">
                                             <p className="release-date"><strong>Release Date:</strong> {movieDetail.release_date ? new Date(movieDetail.release_date).toLocaleDateString() : 'Unknown'}</p>
                                             <p className="movie-genres"><strong>Genres:</strong> {movieDetail?.genres ? movieDetail.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
@@ -193,22 +193,22 @@ function SearchResults (){
 
                                         {/* Replaced the static button with dynamic streaming providers */}
                                         {movieStreamingProviders && movieStreamingProviders.length > 0 ? (
-                                            <div className="streaming-providers">
+                                            <div className="search-streaming-providers">
                                                 <h4>Available on:</h4>
-                                                <div className="provider-logos">
+                                                <div className="search-provider-logos">
                                                     {movieStreamingProviders.map(provider => (
                                                     <img 
                                                         key={provider.provider_id} 
                                                         src={`https://image.tmdb.org/t/p/original${provider.logo_path}`} 
                                                         alt={provider.provider_name} 
                                                         title={provider.provider_name}
-                                                        className="provider-logo"
+                                                        className="search-provider-logo"
                                                     />
                                                     ))}
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="streaming-providers">
+                                            <div className="search-streaming-providers">
                                             <h4>Available on:</h4>
                                             <p className="no-providers-text">No subscription streaming data available.</p>
                                             </div>
