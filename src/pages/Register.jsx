@@ -100,18 +100,18 @@ function Register(props){
                 <form className="register-form" onSubmit={createUser} noValidate>
                     <div className="user-first-last-outercontainer">
 
-                        <div className="firstname-container">
-
+                        <div className="firstname-outercontainer">
                             <label htmlFor="firstname-input">First Name</label>
-                            <input id="firstname-input" className={firstnameInputError? "error-input" : ""} type="text" placeholder="First Name" value={firstname} onChange={(event) => {setFirstname(event.target.value)}} required/>
-
+                            <div className="firstname-container">
+                                <input id="firstname-input" className={firstnameInputError? "error-input" : ""} type="text" placeholder="First Name" value={firstname} onChange={(event) => {setFirstname(event.target.value)}} required/>
+                            </div>
                         </div>
 
-                        <div className="lastname-container">
-
+                        <div className="lastname-outercontainer">
                             <label htmlFor="lastname-input">Last Name</label>
-                            <input id="lastname-input" className={lastnameInputError? "error-input" : ""} type="text" placeholder="Last Name" value={lastname} onChange={(event) => {setLastname(event.target.value)}}required/>
-
+                            <div className="lastname-container">
+                                <input id="lastname-input" className={lastnameInputError? "error-input" : ""} type="text" placeholder="Last Name" value={lastname} onChange={(event) => {setLastname(event.target.value)}}required/>
+                            </div>
                         </div>
 
                     </div>

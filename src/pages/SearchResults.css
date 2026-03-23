@@ -82,6 +82,7 @@ margin-bottom: 0.8rem;
 display: flex;
 flex-wrap: wrap;
 gap: 12px;
+justify-content: center;
 }
 
 .movie-results-details .provider-logos {
@@ -102,4 +103,34 @@ transform: scale(1.15);
 font-size: 0.95rem;
 color: #6b7280;
 font-style: italic;
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 768px) {
+  .search-result-outer-container {
+    padding: 0 1rem;
+  }
+
+  .search-result-container {
+    width: 100%;
+    max-width: 750px;
+    gap: 10px;
+  }
+
+  .movie-results-card {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    margin: 1rem auto 0;
+    max-width: 100%;
+  }
+
+  .movie-results-card img {
+    width: 150px;
+    align-self: center;
+  }
+
+  .movie-results-details {
+    text-align: center;
+  }
 }

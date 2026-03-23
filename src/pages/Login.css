@@ -1,14 +1,16 @@
 /* Login outline */
 .login-outer-container{
-    height: 80vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding-top: 4.5rem;
 }
 
 .login-container{
-    width: 500px;
+    width: 90%;
+    max-width: 500px;
     border: .5px solid #ffffff;
     padding: 3%;
     border-radius: 25px;
@@ -97,6 +99,36 @@ input:focus{
 
 .create-account-container #create-account-btn{
     text-decoration: underline;
+}
+
+/* Mobile support */
+@media (max-width: 600px) {
+    .login-outer-container {
+        padding-top: 2.5rem;
+    }
+
+    .login-container {
+        width: 85%;
+        padding: 4%;
+    }
+
+    .login-form {
+        gap: 20px;
+    }
+
+    .login-email-container, 
+    .login-password-container {
+        padding: 3%;
+    }
+
+    .login-email-container input,
+    .login-password-container input {
+        height: 40px;
+    }
+
+    .login-btn {
+        height: 45px;
+    }
 }
 
 .create-account-container #create-account-btn:hover{
