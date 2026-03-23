@@ -196,7 +196,8 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS FOR WHEEL  ===== */
-@media (max-width: 1024px) {
+/* NEW: Updated max-width to 1180 to cover more smaller screensizes */
+@media (max-width: 1180px) {
   .wheel-layout-grid{
     gap: 2rem;
   }
@@ -219,8 +220,8 @@
 }
 
 
-
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   
   .wheel-layout-grid {
     display: flex;
@@ -325,7 +326,8 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   
   .winner-celebration-section {
     padding: 2rem 1rem;
