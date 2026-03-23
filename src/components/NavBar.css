@@ -169,11 +169,28 @@
   
   .mobile-search-container .search-input {
     flex: 1; 
-    min-width: 0; 
+    min-width: 0;
+    width: 100% !important;
   }
 
   .mobile-profile-section {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 1.5rem;
+  }
+}
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .navbar {
+    background-color: rgba(5, 8, 16, 0.4); /* Much more transparent in landscape */
+    padding: 0.5rem 0.75rem; /* Even smaller padding */
+  }
+
+  .logo-icon {
+    font-size: 1rem; /* Even smaller logo */
+  }
+
+  .mobile-menu-btn {
+    font-size: 1rem;
   }
 }

@@ -5,10 +5,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding-top: 4.5rem;
 }
 
 .register-container{
-    width: 500px;
+    width: 90%;
+    max-width: 500px;
     border: .5px solid #ffffff;
     padding: 3%;
     border-radius: 25px;
@@ -99,6 +101,51 @@ input:focus{
     text-decoration: underline;
 }
 
+/* Mobile support */
+@media (max-width: 600px) {
+    .register-outer-container {
+        padding-top: 2.5rem;
+    }
+
+    .register-container {
+        width: 85%;
+        padding: 4%;
+    }
+
+    .register-form {
+        gap: 20px;
+    }
+
+    .register-email-container, 
+    .register-password-container {
+        padding: 3%;
+    }
+
+    .register-email-container input,
+    .register-password-container input {
+        height: 40px;
+    }
+
+    .register-btn {
+        height: 45px;
+    }
+
+    .user-first-last-outercontainer {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .firstname-container input,
+    .lastname-container input {
+        height: 40px;
+    }
+
+    .firstname-container, 
+    .lastname-container {
+        padding: 3%;
+    }
+}
+
 .have-account-container #existing-login-btn:hover{
     text-decoration: none;
 }
@@ -112,43 +159,36 @@ input:focus{
 .user-first-last-outercontainer{
     display: flex;
     flex-direction: row;
-    gap: 6.49rem;
+    gap: 1.5rem;
+}
+
+.firstname-outercontainer, .lastname-outercontainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
 }
 
 .firstname-container, .lastname-container {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    background-color: #2C2C2C;
+    padding: 2%;
+    border-radius: 10px;
 }
 
-.firstname-container input{
-    background-color: #2C2C2C;
+.firstname-container input, .lastname-container input {
+    background-color: transparent;
     border: 0;
-    border-radius: 10px;
-    width: 115%;
+    width: 100%;
     height: 50px;
-    padding: 0 0 0 15px;
     color: #ffffff;
 }
 
-.lastname-container input{
-    background-color: #2C2C2C;
-    border: 0;
-    border-radius: 10px;
-    width: 115%;
-    height: 50px;
-    padding: 0 0 0 15px;
-    color: #ffffff;
-}
-
-.firstname-container input:focus{
-    border: .5px solid #ffffff;
-    border-radius: 10px;
-}
-
-.lastname-container input:focus{
-    border: .5px solid #ffffff;
-    border-radius: 10px;
+.firstname-container input:focus, .lastname-container input:focus {
+    outline: none;
 }
 
 /* Input Error */
