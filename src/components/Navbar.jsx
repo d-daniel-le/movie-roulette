@@ -29,6 +29,7 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/results?q=${encodeURIComponent(searchQuery)}`)
+    setSearchQuery("")
     console.log("Searching TMDB for:", searchQuery); 
     setIsMobileMenuOpen(false);
   }
@@ -43,9 +44,9 @@ export default function Navbar() {
         </div>
         
         <ul className="navbar-links desktop-only">
-          <li><Link to="/" className="nav-link">Home</Link></li>
-          <li><Link to="/trending" className="nav-link">Trending</Link></li>
-          <li><Link to="/wheel" className="nav-link">Wheel</Link></li>
+          <li><Link to="/" className="nav-link" onClick={() =>{setSearchQuery("")}}>Home</Link></li>
+          <li><Link to="/trending" className="nav-link" onClick={() =>{setSearchQuery("")}}>Trending</Link></li>
+          <li><Link to="/wheel" className="nav-link" onClick={() =>{setSearchQuery("")}}>Wheel</Link></li>
         </ul>
       </div>
       
