@@ -56,7 +56,8 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS ===== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) { 
   
   .trending-page-container {
     padding: 0 1rem 1.5rem 1rem; 
@@ -92,31 +93,6 @@
 
   .poster-placeholder-trending p {
     font-size: 0.9rem;
-  }
-}
-
-/* ===== TABLET RESPONSIVENESS ===== */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .featured-movie {
-    height: 45vh;
-    min-height: 280px;
-    max-height: 400px;
-  }
-
-  .h1-trending {
-    font-size: 2.2rem;
-  }
-}
-
-/* ===== SMALL DESKTOP RESPONSIVENESS ===== */
-@media (max-width: 1200px) and (min-width: 1025px) {
-  .featured-movie {
-    height: 48vh;
-    max-height: 450px;
-  }
-
-  .h1-trending {
-    font-size: 2.4rem;
   }
 }
 

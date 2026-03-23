@@ -205,7 +205,8 @@ transform: scale(1.05);
 }
   
 /* ===== MOBILE RESPONSIVENESS ===== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   .search-result-outer-container {
     padding: 0 1rem;
   }

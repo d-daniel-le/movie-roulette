@@ -102,7 +102,8 @@ input:focus{
 }
 
 /* Mobile support */
-@media (max-width: 600px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
     .login-outer-container {
         padding-top: 2.5rem;
     }

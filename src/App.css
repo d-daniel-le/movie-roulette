@@ -112,7 +112,8 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS FOR HOME PAGE ===== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   
   .hero-section {
     padding: 0 1.5rem;
@@ -321,7 +322,8 @@
 }
 
 /* ===== MOBILE RESPONSIVENESS FOR MODAL ===== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   .modal-content {
     padding: 1.5rem;
     max-width: 95%;

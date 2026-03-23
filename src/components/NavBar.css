@@ -110,7 +110,8 @@
 }
 
 /* ================== MOBILE RESPONSIVENESS ================== */
-@media (max-width: 768px) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) {
   .navbar {
     padding: 1rem 1.5rem;
   }
@@ -180,7 +181,8 @@
 }
 
 /* ===== LANDSCAPE MOBILE ===== */
-@media (max-width: 768px) and (orientation: landscape) {
+/* NEW: Updated max-width to 1000px and turn it to the mobile version */
+@media (max-width: 1000px) and (orientation: landscape) {
   .navbar {
     background-color: rgba(5, 8, 16, 0.4); /* Much more transparent in landscape */
     padding: 0.5rem 0.75rem; /* Even smaller padding */
