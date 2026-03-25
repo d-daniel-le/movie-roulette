@@ -5,16 +5,22 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import ErrorMessage from "../components/ErrorMessage";
 
 function Login(props){
     const [loginEmail, setLoginEmail] = useState("")
     const [loginPassword, setLoginPassword] = useState("")
     const [logErrorMessage, setLogErrorMessage] = useState("")
     const [hiddenLogErrorMessage, setHiddenLogErrorMessage] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate();
     const signInUser = async (event) =>{
         event.preventDefault()
+        if (isSubmitting) {
+            return
+        }
+        setIsSubmitting(true);
         
         try{
             const userCred = await signInWithEmailAndPassword(auth, loginEmail, loginPassword)
@@ -43,6 +49,9 @@ function Login(props){
             setLoginPassword("")
             console.log(error)
         }
+        finally {
+            setIsSubmitting(false)
+        }
     }
 
 
@@ -50,7 +59,8 @@ function Login(props){
         <div className="login-outer-container">
             <div className="login-container">
                 <h2>Sign in</h2>
-                <p className="error-message" hidden={hiddenLogErrorMessage}>{logErrorMessage}</p>
+                {/* <p className="error-message" hidden={hiddenLogErrorMessage}>{logErrorMessage}</p> */}
+                {!hiddenLogErrorMessage && <ErrorMessage message={logErrorMessage}/>}
                 <form className="login-form" onSubmit={signInUser}>
                     <div className="login-email-outercontainer">
                         <label htmlFor="email-input" id="login-username-label">Email Address</label>
@@ -69,7 +79,7 @@ function Login(props){
                         </div>
 
                     </div>
-                    <button className="login-btn">Login to HomePage</button>
+                    <button className="login-btn" disabled={isSubmitting}>{isSubmitting ? "Logging in..." : "Login to HomePage"}</button>
                 </form>
                 
                 <div className="create-account-container">            

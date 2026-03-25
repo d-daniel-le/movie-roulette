@@ -8,6 +8,7 @@ export default function Home() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [movieDetails, setMovieDetails] = useState(null);
   const [isUpcoming, setIsUpcoming] = useState(false);
+  const [error, setError] = useState("")
 
   // 1. Create Refs for the scrollable containers
   const popularScrollRef = useRef(null);
@@ -15,36 +16,48 @@ export default function Home() {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      const options = {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+      try{
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN_AUTH}`
+          }
+        };
+  
+        const today = new Date().toISOString().split('T')[0];
+        const [popularRes, upcomingRes] = await Promise.all([
+          fetch('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options),
+          fetch(`https://api.themoviedb.org/3/discover/movie?primary_release_date.gte=${today}&sort_by=popularity.desc&language=en-US&page=1`, options)
+        ]);
+
+        if(!popularRes.ok || !upcomingRes.ok){
+          throw new Error("Load movies was not successful")
         }
-      };
-
-      const today = new Date().toISOString().split('T')[0];
-      const [popularRes, upcomingRes] = await Promise.all([
-        fetch('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options),
-        fetch(`https://api.themoviedb.org/3/discover/movie?primary_release_date.gte=${today}&sort_by=popularity.desc&language=en-US&page=1`, options)
-      ]);
-
-      const popularData = await popularRes.json();
-      const upcomingData = await upcomingRes.json();
-
-      // Filter out movies that haven't been released yet and adult movies
-      const releasedMovies = popularData.results.filter(movie => 
-        (!movie.release_date || new Date(movie.release_date) <= new Date(today)) &&
-        !movie.adult
-      );
-      const popularMovies = releasedMovies || [];
-      const popularIds = new Set(popularMovies.map((m) => m.id));
-
-      setMovies(popularMovies);
-      setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id) && !m.adult) || []);
-
-      setLoading(false);
-      setCOSLoading(false);
+  
+        const popularData = await popularRes.json();
+        const upcomingData = await upcomingRes.json();
+  
+        // Filter out movies that haven't been released yet and adult movies
+        const releasedMovies = popularData.results.filter(movie => 
+          (!movie.release_date || new Date(movie.release_date) <= new Date(today)) &&
+          !movie.adult
+        );
+        const popularMovies = releasedMovies || [];
+        const popularIds = new Set(popularMovies.map((m) => m.id));
+  
+        setMovies(popularMovies);
+        setCOSMovies(upcomingData.results.filter((m) => !popularIds.has(m.id) && !m.adult) || []);
+  
+        setLoading(false);
+        setCOSLoading(false);  
+      }
+      catch(error){
+        setError("We are not able to load movie at this time. Please refresh your page in a few mins.")
+        console.log(error)
+        setLoading(false);
+        setCOSLoading(false);  
+      }
     };
 
     fetchMovies();
@@ -88,6 +101,10 @@ export default function Home() {
         fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options),
         fetch(`https://api.themoviedb.org/3/movie/${movieId}/watch/providers?language=en-US`, options)
       ]);
+
+      if (!movieRes.ok ||!providersRes.ok){
+        throw new Error("Load movies was not successful")
+      }
       
       const movieData = await movieRes.json();
       const providersData = await providersRes.json();
@@ -125,6 +142,9 @@ export default function Home() {
 
   return (
     <>
+    {
+      error && <p>{error}</p>
+    }
       <main className="home-page">
         {/* Hero Section */}
         <section className="hero-section" aria-labelledby="hero-heading">

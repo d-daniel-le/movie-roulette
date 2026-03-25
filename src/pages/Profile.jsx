@@ -30,6 +30,9 @@ function Profile(){
     const [hiddenDeleteReauthenticateAccount, setHiddenDeleteReauthenticateAccount] = useState(false)
     const [deleteErrorMessage, setDeleteErrorMessage] = useState("")
     const [hiddenDeleteErrorMessage, setHiddenDeleteErrorMessage] = useState(true)
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [historyError, setHistoryError] = useState("");
+    const [deletingAccount, setDeletingAccount] = useState(false);
 
     const profileMoviesRef = useRef(null);
 
@@ -112,6 +115,9 @@ function Profile(){
 
     const yesDeleteUser = async () =>{
         setDeleteAccount(false)
+        setDeletingAccount(true);
+        setDeleteErrorMessage("");
+        setHiddenDeleteErrorMessage(true);
 
         try{
             const collectionData = await getDocs(collection(db, "userinfo", user.uid, "history"))
@@ -141,6 +147,9 @@ function Profile(){
             else{
                 console.log(error)
             }
+        }
+        finally {
+            setDeletingAccount(false);
         }
 
     }
@@ -302,16 +311,28 @@ function Profile(){
     useEffect(()=>{
 
         const readDoc = async ()=>{
-            const getDocuments = await getDocs(collection(db, "userinfo", user.uid, "history"))
-            const movies = getDocuments.docs.map((document) => {
-                const documentData = document.data()
-
-                return{
-                    ...documentData.movie,
-                    retrievedDate: documentData.retrievedDate?.toDate()
-                }
-            })
-            setChosenMovie(movies)
+            try {
+                setLoadingHistory(true);
+                setHistoryError("");
+        
+                const getDocuments = await getDocs(collection(db, "userinfo", user.uid, "history"));
+        
+                const movies = getDocuments.docs.map((document) => {
+                    const documentData = document.data();
+        
+                    return {
+                        ...documentData.movie,
+                        retrievedDate: documentData.retrievedDate?.toDate()
+                    };
+                });
+        
+                setChosenMovie(movies);
+            } catch (error) {
+                console.log(error);
+                setHistoryError("Unable to load your spin history.");
+            } finally {
+                setLoadingHistory(false);
+            }
         }
 
         if(user){
@@ -452,8 +473,8 @@ function Profile(){
                                         <div className="modal-delete-movie-details">
                                             <p>Are you sure you want to delete your account?</p>
                                             <div className="delete-confirmation-btn-container">
-                                                <button onClick={yesDeleteUser}>Yes</button>
-                                                <button onClick={noDeleteUser}>No</button>
+                                                <button onClick={yesDeleteUser} disabled={deletingAccount}>{deletingAccount ? "Deleting" : "Yes"}</button>
+                                                <button onClick={noDeleteUser} disabled={deletingAccount}>No</button>
                                             </div>
                                         </div>
                                     </div>
@@ -481,111 +502,120 @@ function Profile(){
                 </div>
 
                 {/* User Spinned/Watched History */}
-                <div className="profile-watched-content" hidden={hiddenWatchedContent}>
 
-                    <div className="profile-watched-history">
-                        <h3>Spin History</h3>
-                    </div>
+                {
+                    loadingHistory ? (
+                        <p hidden={true}>Loading your spin history...</p>
+                    ): historyError ? (
+                        <p className="spin-history-error-message">{historyError}</p>
+                    ): (
+                                <div className="profile-watched-content" hidden={hiddenWatchedContent}>
 
-                    <div className="spin-date-container">
-                        {
-                            Object.entries(orderedByDate).sort(([firstDate], [secondDate])=>{
-                                if (firstDate === "Previous Spinned"){
-                                    return 1
-                                }
-                                if (secondDate === "Previous Spinned"){
-                                    return -1
-                                }
-                                return new Date(secondDate) - new Date(firstDate)
-                            }).map(([date, movies])=>(
-                                <div className="movie-scroller-history" key={date}>
-
-                                    <div className="spin-date">
-                                        <p>{date}</p>
-                                    </div>
-
-                                    {/* CHANGED: Wrapped the mapped movies in a new 'history-movies-row' div so the date above isn't forced into the horizontal scroll row */}
-                                    <div className="history-movies-row" ref={profileMoviesRef}>
-                                        {
-                                            movies.map((movie) =>(
-                                                <div 
-                                                    className="poster-placeholder-history" 
-                                                    key={movie.id}
-                                                    role="button" 
-                                                    tabIndex="0"
-                                                    aria-label={`View details for ${movie.title}`}
-                                                    onClick={() => {
-                                                        setSelectedMovie(movie);
-                                                        fetchMovieDetails(movie.id);
-                                                    }}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter' || e.key === ' ') {
-                                                            e.preventDefault();
-                                                            setSelectedMovie(movie);
-                                                            fetchMovieDetails(movie.id);
-                                                        }
-                                                    }}
-                                                    
-                                                >
-                                                    <img 
-                                                    className='cardimg'
-                                                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
-                                                    alt={movie.title} 
-                                                    />
-                                                    <p><strong>{movie.title}</strong></p>
-                                                </div>
-                                            ))
-                                        }
-                                    </div>
-                                        
+                                <div className="profile-watched-history">
+                                    <h3>Spin History</h3>
                                 </div>
-                            ))
-                        }
-                        {selectedMovie && (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-          <div className="modal-content">
-            <span 
-              className="close" 
-              role="button" 
-              tabIndex="0" 
-              aria-label="Close dialog"
-              onClick={() => {
-                setSelectedMovie(null);
-                setMovieDetails(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setSelectedMovie(null);
-                  setMovieDetails(null);
+            
+                                <div className="spin-date-container">
+                                    {
+                                        Object.entries(orderedByDate).sort(([firstDate], [secondDate])=>{
+                                            if (firstDate === "Previous Spinned"){
+                                                return 1
+                                            }
+                                            if (secondDate === "Previous Spinned"){
+                                                return -1
+                                            }
+                                            return new Date(secondDate) - new Date(firstDate)
+                                        }).map(([date, movies])=>(
+                                            <div className="movie-scroller-history" key={date}>
+            
+                                                <div className="spin-date">
+                                                    <p>{date}</p>
+                                                </div>
+            
+                                                {/* CHANGED: Wrapped the mapped movies in a new 'history-movies-row' div so the date above isn't forced into the horizontal scroll row */}
+                                                <div className="history-movies-row" ref={profileMoviesRef}>
+                                                    {
+                                                        movies.map((movie) =>(
+                                                            <div 
+                                                                className="poster-placeholder-history" 
+                                                                key={movie.id}
+                                                                role="button" 
+                                                                tabIndex="0"
+                                                                aria-label={`View details for ${movie.title}`}
+                                                                onClick={() => {
+                                                                    setSelectedMovie(movie);
+                                                                    fetchMovieDetails(movie.id);
+                                                                }}
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                                        e.preventDefault();
+                                                                        setSelectedMovie(movie);
+                                                                        fetchMovieDetails(movie.id);
+                                                                    }
+                                                                }}
+                                                                
+                                                            >
+                                                                <img 
+                                                                className='cardimg'
+                                                                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
+                                                                alt={movie.title} 
+                                                                />
+                                                                <p><strong>{movie.title}</strong></p>
+                                                            </div>
+                                                        ))
+                                                    }
+                                                </div>
+                                                    
+                                            </div>
+                                        ))
+                                    }
+                                    {selectedMovie && (
+                                        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                                        <div className="modal-content">
+                                            <span 
+                                            className="close" 
+                                            role="button" 
+                                            tabIndex="0" 
+                                            aria-label="Close dialog"
+                                            onClick={() => {
+                                                setSelectedMovie(null);
+                                                setMovieDetails(null);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                setSelectedMovie(null);
+                                                setMovieDetails(null);
+                                                }
+                                            }}
+                                            >&times;</span>
+                                            <div className="modal-movie-details">
+                                            <img 
+                                                src={selectedMovie.poster_path
+                                                ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
+                                                : 'https://placehold.co/500x750?text=No+Poster'}
+                                                onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
+                                                alt={`Poster of ${selectedMovie.title}`}
+                                                className="modal-movie-poster"
+                                            />
+                                            <div className="modal-movie-info">
+                                                <h2 id="modal-title">{selectedMovie.title}</h2>
+                                                <div className="movie-details">
+                                                <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
+                                                <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
+                                                <p className="movie-runtime"><strong>Runtime:</strong> {movieDetails?.runtime ? `${movieDetails.runtime} minutes` : 'Loading...'}</p>
+                                                </div>
+                                                <p className="movie-overview">{selectedMovie.overview || 'No description available.'}</p>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    )}
+                                </div>
+            
+                            </div>
+            
+                        )
                 }
-              }}
-            >&times;</span>
-            <div className="modal-movie-details">
-              <img 
-                src={selectedMovie.poster_path
-                  ? `https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`
-                  : 'https://placehold.co/500x750?text=No+Poster'}
-                onError={(e) => e.target.src = 'https://placehold.co/500x750?text=No+Poster'}
-                alt={`Poster of ${selectedMovie.title}`}
-                className="modal-movie-poster"
-              />
-              <div className="modal-movie-info">
-                <h2 id="modal-title">{selectedMovie.title}</h2>
-                <div className="movie-details">
-                  <p className="release-date"><strong>Release Date:</strong> {selectedMovie.release_date ? new Date(selectedMovie.release_date).toLocaleDateString() : 'Unknown'}</p>
-                  <p className="movie-genres"><strong>Genres:</strong> {movieDetails?.genres ? movieDetails.genres.map(g => g.name).join(', ') : 'Loading...'}</p>
-                  <p className="movie-runtime"><strong>Runtime:</strong> {movieDetails?.runtime ? `${movieDetails.runtime} minutes` : 'Loading...'}</p>
-                </div>
-                <p className="movie-overview">{selectedMovie.overview || 'No description available.'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-                    </div>
-
-                </div>
-
             </div>
         </nav>
     )

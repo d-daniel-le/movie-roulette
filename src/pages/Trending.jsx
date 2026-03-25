@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import LoadingMessage from '../components/LoadingMessage';
 import './Trending.css';
 
 export default function Trending() {
@@ -130,7 +131,11 @@ export default function Trending() {
         fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, options),
         fetch(`https://api.themoviedb.org/3/movie/${movieId}/watch/providers?language=en-US`, options)
       ]);
-      
+
+      if (!movieRes.ok ||!providersRes.ok){
+        throw new Error("Load movies was not successful")
+      }
+
       const movieData = await movieRes.json();
       const providersData = await providersRes.json();
       
@@ -184,7 +189,7 @@ export default function Trending() {
     }
   };
 
-  if (loading) return <p aria-live="polite">Loading trending content...</p>;
+  if (loading) return <LoadingMessage message="Loading trending content..." />;
 
   const featuredMovie = movies[0];
 
