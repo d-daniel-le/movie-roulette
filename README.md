@@ -11,7 +11,7 @@ npm install
 - At the project folder, run
 `touch .env`
 - Open the .env in your code editor
-- Create all the Variables for your secret key - Below is an example
+- Create below Variables for your own secret key from TMDB and Firebase - Below is an example
 ```.env
 VITE_FIREBASE_API_KEY=your_firebase_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_key
