@@ -2,13 +2,13 @@ import { AuthContext } from "../components/AuthProvider";
 import { useContext, useEffect, useState, useRef } from "react";
 import "./Profile.css"
 import { EmailAuthProvider, reauthenticateWithCredential, signOut, updateEmail, updateProfile } from "firebase/auth";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 function Profile(){
 
-    // Component STate
+    // Component State
     const [hiddenMyInfo, setHiddenMyInfo] = useState(false);
     const [hiddenWatchedContent, setHiddenWatchedContent] = useState(true);
     const [currentlyEdit, setCurrentlyEdit] = useState(false);
@@ -26,6 +26,10 @@ function Profile(){
     const [chosenMovie, setChosenMovie] = useState([])
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [movieDetails, setMovieDetails] = useState(null);
+    const [deleteAccount, setDeleteAccount] = useState(false)
+    const [hiddenDeleteReauthenticateAccount, setHiddenDeleteReauthenticateAccount] = useState(false)
+    const [deleteErrorMessage, setDeleteErrorMessage] = useState("")
+    const [hiddenDeleteErrorMessage, setHiddenDeleteErrorMessage] = useState(true)
 
     const profileMoviesRef = useRef(null);
 
@@ -95,7 +99,75 @@ function Profile(){
         setReauthAccount(false)
         setCurrentDisplayNameValue(user.displayName)
         setCurrentEmailValue(user.email)
-}
+    }
+
+    // Delete Button - click button
+    const deleteUser = () =>{
+        setDeleteAccount(true)
+    }
+
+    const noDeleteUser = () =>{
+        setDeleteAccount(false)
+    }
+
+    const yesDeleteUser = async () =>{
+        setDeleteAccount(false)
+
+        try{
+            const collectionData = await getDocs(collection(db, "userinfo", user.uid, "history"))
+
+            for (const document of collectionData.docs){
+                await deleteDoc(document.ref)
+            }
+
+            await deleteDoc(doc(db, "userinfo", `${user.uid}`))
+            await user.delete()
+
+            setDeleteErrorMessage("")
+            setHiddenDeleteErrorMessage(true)
+
+            navigate("/register")
+
+        }
+        catch(error){
+            if(error.code === "auth/requires-recent-login"){
+                setHiddenDeleteReauthenticateAccount(true)
+                setDeleteAccount(false)
+            }
+            else if (error.code === "auth/network-request-failed"){
+                setDeleteErrorMessage("Oops...Network Error")
+                setHiddenDeleteErrorMessage(false)
+            }
+            else{
+                console.log(error)
+            }
+        }
+
+    }
+
+    const deleteReauthenticateAccount = async (event) =>{
+        event.preventDefault()
+        try{
+            const credential = EmailAuthProvider.credential(
+                user.email,
+                reauthPassword
+            )
+            await reauthenticateWithCredential(user, credential)
+
+            setReauthPasswordMessage("")
+            setHiddenReauthPasswordMessage(true)
+            setReauthPassword("")
+            setHiddenDeleteReauthenticateAccount(false)
+            setDeleteAccount(true)
+    }
+        catch (error){
+            setReauthPasswordMessage(error.code)
+            setHiddenReauthPasswordMessage(false)
+            console.log(error)
+        }
+    }
+
+
     // Reauthenticate Account when firebase throw an error to reauthenticate
     const reauthenticateAccount = async (event) =>{
         event.preventDefault()
@@ -361,11 +433,48 @@ function Profile(){
                             </div>
                         </dl>
 
-                        <button hidden={currentlyEdit} onClick={setEditInformation}>Edit Information</button>
+                        <div className="user-account-information-btns">
+                            <button hidden={currentlyEdit} onClick={setEditInformation}>Edit Information</button>
+                            <button hidden={currentlyEdit} onClick={deleteUser}>Delete Account</button>
+                        </div>
+
                         <div className="save-cancel-edit">
                             <button hidden={!currentlyEdit || reauthAccount} onClick={setSaveEdit}>Save</button>
                             <button hidden={!currentlyEdit || reauthAccount} onClick={setCancelEdit}>Cancel</button>
                         </div>
+
+                        {
+                            deleteAccount && (
+                                <div className="modal-delete" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
+                                    <div className="modal-delete-content">
+                                        <p hidden={hiddenDeleteErrorMessage}>{deleteErrorMessage}</p>
+
+                                        <div className="modal-delete-movie-details">
+                                            <p>Are you sure you want to delete your account?</p>
+                                            <div className="delete-confirmation-btn-container">
+                                                <button onClick={yesDeleteUser}>Yes</button>
+                                                <button onClick={noDeleteUser}>No</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
+
+                        {
+                            hiddenDeleteReauthenticateAccount && (
+                                <div className="modal-delete" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
+                                    <div className="modal-delete-content">
+                                        <div className="modal-delete-movie-details">
+                                            <p hidden={hiddenReauthPasswordMessage}>{reauthPasswordMessage}</p>
+                                            <dt>Password:</dt>
+                                            <input type="password" value={reauthPassword} onChange={(event) => {setReauthPassword(event.target.value)}}/>
+                                            <button onClick={deleteReauthenticateAccount}>Verify</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
 
                     </div>
                     

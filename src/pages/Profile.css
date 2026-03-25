@@ -119,8 +119,14 @@ hr{
 }
 
 /* Edit Information Btn */
+.user-account-information .user-account-information-btns{
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    width: 60%;
+}
 .user-account-information button {
-    width: 50%;
+    width: 100%;
     height: 50px;
     border: none;
     border-radius: 10px;
@@ -128,11 +134,64 @@ hr{
     color: #ffffff;
     margin-bottom: 3%;
 }
-
 .user-account-information button:hover{
     border: .5px solid #ffffff;
     border-radius: 10px;
     cursor: pointer;
+}
+
+/* ===== DELETE DESCRIPTION MODAL ===== */
+.modal-delete {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+.modal-delete-content {
+background-color: #101318;
+padding: 2rem;
+border-radius: 12px;
+max-width: 600px;
+width: 90%;
+max-height: 80vh;
+overflow-y: auto;
+position: relative;
+color: white;
+scrollbar-width: none;
+-ms-overflow-style: none;
+}
+
+.modal-delete-content::-webkit-scrollbar {
+display: none;
+}
+
+.modal-delete-content h2 {
+margin-top: 0;
+margin-bottom: 1rem;
+}
+
+.modal-delete-content p {
+line-height: 1.6;
+}
+
+.modal-delete-movie-details {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+align-items: center;
+}
+.delete-confirmation-btn-container{
+    display: flex;
+    flex-direction: row;
+    width: 70%;
+    gap: 25px;
 }
 
 /* Account Name */
