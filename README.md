@@ -54,7 +54,7 @@ npm run dev
 # Limitations and Bugs 
 ## User Side - Limitation
 - Due to limited time, Adding Movies to Favorites and Movie Recommendation based on the movies based on what user likes
-- Streaming Navigation will be directed to Google at the moment as we are figuring out how to link the movie straight to the services itself
+- Streaming Navigation will be directed to Google at the moment as we are figuring out how to link the movie straight to the services itself. On some modal, streaming services button will not be navigated anywhere at the moment. It's a placeholder for now due to limited timing. This Feature is only available in Home and Trending page.
 ## Development side - Bugs
 - There might some error handling that it's not nicely displayed at the moment such as like the reauthentication in the Profile.jsx since updating email doesn't always requires authentication
 - Responsive Design would cover most common screen but not every screen is covered at the moment.
