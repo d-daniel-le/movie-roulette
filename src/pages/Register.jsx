@@ -6,6 +6,7 @@ import { auth } from "../firebase"
 import { useState } from "react"
 import { db } from "../firebase"
 import { collection, doc, setDoc } from "firebase/firestore"
+import ErrorMessage from "../components/ErrorMessage"
 
 function Register(props){
     const navigate = useNavigate()
@@ -19,6 +20,7 @@ function Register(props){
     const [firstnameInputError, setFirstnameInputError] = useState(false)
     const [lastname, setLastname] = useState("");
     const [lastnameInputError, setLastnameInputError] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const createUser = async (event) =>{
         event.preventDefault()
@@ -57,6 +59,8 @@ function Register(props){
             return
         }
 
+        setIsSubmitting(true)
+
         try{
             // Register User
             const userCred = await createUserWithEmailAndPassword(auth, registerEmail, registerPassword)
@@ -89,13 +93,16 @@ function Register(props){
             setHiddenRegErrorMessage(false)
             console.log(error)
         }
+        finally {
+            setIsSubmitting(false)
+        }
     }
     return (
         <div className="register-outer-container">
             <div className="register-container">
 
                 <h2>Create an Account</h2>
-                <p className="error-message" hidden={hiddenRegErrorMessage}>{regErrorMessage}</p>
+                {!hiddenRegErrorMessage && <ErrorMessage message={regErrorMessage}/>}
 
                 <form className="register-form" onSubmit={createUser} noValidate>
                     <div className="user-first-last-outercontainer">
@@ -136,7 +143,7 @@ function Register(props){
 
                     </div>
 
-                    <button className="register-btn">Register</button>
+                    <button className="register-btn" disabled={isSubmitting}>{isSubmitting ? "Registering..." : "Register"}</button>
                 </form>
 
                 <div className="have-account-container">

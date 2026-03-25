@@ -13,6 +13,12 @@ npm install
 - Open the .env in your code editor
 - Create all the Variables for your secret key - Below is an example
 ```.env
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_key
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_key
+VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_key
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_key
+VITE_FIREBASE_APP_ID=your_firebase_app_key
 VITE_TMDB_API_TOKEN_AUTH=your_secret_tmdb_key
 ```
 

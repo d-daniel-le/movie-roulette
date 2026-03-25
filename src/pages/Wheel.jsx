@@ -57,9 +57,9 @@ export default function Wheel() {
   const handleSpinClick = async () => {
     
     // --- AUTHENTICATION GUARD ---
-    if (!auth.currentUser) {
+    if (!user) {
       alert("You need to log in or register to spin the Roulette Wheel!");
-      navigate('/register'); 
+      navigate('/login'); 
       return; 
     }
 

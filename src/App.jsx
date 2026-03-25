@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import SearchResults from './pages/SearchResults';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css'; 
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
         <Route path="/wheel" element={<Wheel />} />
         <Route path="/login" element={<Login />}/>
         <Route path='/register' element={<Register />} />
-        <Route path='/profile' element={<Profile />}/>
+        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
         <Route path='/results'element={<SearchResults />}></Route>
       </Routes>
     </div>
